@@ -87,7 +87,7 @@ The first one is for <a href="https://github.com/tomdodd4598/NuclearCraft/tree/1
 <p>The two patch repos are:</p>
 <ul>
     <li><a href="https://github.com/Exaxxion/NuclearCraft/tree/2.18y-ceu">NuclearCraft</a>. This fixes GTCEu incompatability with NuclearCraft.</li>
-    <li><a href="https://github.com/Nomi-CEu/Draconic-Evolution">Draconic Evolution</a>. This adds the destruct core button, and allows GT blocks in place of DE blocks, in the Energy Core and Reactor.</li>
+    <li><a href="https://github.com/Nomi-CEu/Draconic-Evolution">Draconic Evolution</a>. This adds the destruct core button, and allows GT blocks in place of DE blocks in the Energy Core and Reactor.</li>
 </ul>
 <p>If there are issues or crashes with Draconic Evolution, please report them to <a href="https://github.com/Nomi-CEu/Draconic-Evolution/issues">here</a> instead of the main Draconic Evolution repo.</p>
 
