@@ -42,6 +42,11 @@ on:
         required: true
         type: boolean
         default: true
+      checkout_tag:
+        description: Whether to checkout the provided tag.
+        required: false
+        default: true
+        type: boolean
 
 jobs:
   build:
@@ -54,6 +59,7 @@ jobs:
       changelog_cf_url: ${{ inputs.changelog_cf_url }}
       changelog_branch: ${{ inputs.changelog_branch }}
       compare_tag: ${{ inputs.compare_tag }}
+      checkout_tag: ${{ inputs.checkout_tag }}
     secrets: inherit
 
   deployGH:
