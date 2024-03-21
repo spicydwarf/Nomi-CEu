@@ -163,15 +163,7 @@ jobs:
           name: Lang Zip
           path: ./build/*-lang.zip
           if-no-files-found: error
-      
-      - name: Upload MMC Zip
-        uses: actions/upload-artifact@v3
-        if: ${{ inputs.separate_upload }}
-        with:
-          name: MMC Zip
-          path: ./build/*-mmc.zip
-          if-no-files-found: error
-
+          
       - name: Upload Changelogs
         uses: actions/upload-artifact@v3
         if: ${{ inputs.separate_upload }}

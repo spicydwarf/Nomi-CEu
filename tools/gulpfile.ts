@@ -40,7 +40,10 @@ export const buildClient = gulp.series(sharedTasks, clientTasks);
 export const buildServer = gulp.series(sharedTasks, modTasks, serverTasks);
 export const buildLang = gulp.series(sharedTasks, langTasks);
 export const buildMMC = gulp.series(sharedTasks, modTasks, clientTasks, mmcTasks);
-export const buildAll = gulp.series(sharedTasks, modTasks, gulp.series(clientTasks, langTasks, serverTasks, mmcTasks));
+export const buildAll = gulp.series(
+	gulp.parallel(sharedTasks, modTasks),
+	gulp.parallel(clientTasks, langTasks, serverTasks),
+);
 
 import checkTasks from "./tasks/checks";
 export const check = gulp.series(checkTasks);
