@@ -1,4 +1,4 @@
-**Note: CF uses `style="text-align: center;"` instead of `style="text-align: center;"`, so Find and Replace that, as the first does not work with GH, and the latter doesn't work in CF.**
+**Note: CF uses `style="text-align: center;"` instead of `align="center"`, so Find and Replace that, as the first does not work with GH, and the latter doesn't work in CF.**
 
 ***Make sure that you copy into the source code editor of WYSIWYG!***
 
