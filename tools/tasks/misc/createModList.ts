@@ -6,8 +6,11 @@ import {
 } from "#utils/curseForgeAPI.ts";
 import { modpackManifest } from "#globals";
 import { checkGitTag, getFileAtRevision } from "#utils/util.ts";
-import { ModpackManifest } from "#types/modpackManifest.ts";
-import { CurseForgeFileInfo, CurseForgeModInfo } from "#types/curseForge.ts";
+import type { ModpackManifest } from "#types/modpackManifest.ts";
+import type {
+	CurseForgeFileInfo,
+	CurseForgeModInfo,
+} from "#types/curseForge.ts";
 import logInfo from "#utils/log.ts";
 
 export interface ModFileInfo {

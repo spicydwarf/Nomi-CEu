@@ -1,10 +1,10 @@
 import {
-	Category,
-	Commit,
-	FixUpInfo,
+	type Category,
+	type Commit,
+	type FixUpInfo,
 	Ignored,
-	Parser,
-	SubCategory,
+	type Parser,
+	type SubCategory,
 } from "#types/changelogTypes.ts";
 import {
 	categories,

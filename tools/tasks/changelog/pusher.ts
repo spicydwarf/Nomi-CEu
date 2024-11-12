@@ -1,6 +1,10 @@
 import ChangelogData from "./changelogData.ts";
 import { categories, defaultIndentation } from "./definitions.ts";
-import { Category, ChangelogMessage, Commit } from "#types/changelogTypes.ts";
+import type {
+	Category,
+	ChangelogMessage,
+	Commit,
+} from "#types/changelogTypes.ts";
 import { repoLink } from "./definitions.ts";
 import {
 	formatAuthor,

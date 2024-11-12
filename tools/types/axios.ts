@@ -1,4 +1,4 @@
-import { FileDef } from "#types/fileDef.ts";
+import type { FileDef } from "#types/fileDef.ts";
 
 declare module "axios" {
 	export interface AxiosRequestConfig {

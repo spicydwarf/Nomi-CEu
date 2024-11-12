@@ -1,11 +1,11 @@
 import { sha1 } from "hash-wasm";
-import { FileDef } from "#types/fileDef.ts";
+import type { FileDef } from "#types/fileDef.ts";
 import fs from "fs";
 import buildConfig from "#buildConfig";
 import upath from "upath";
 import { compareBufferToHashDef } from "./hashes.ts";
 import { execSync } from "child_process";
-import {
+import type {
 	ExternalDependency,
 	ModpackManifest,
 	ModpackManifestFile,
@@ -15,29 +15,29 @@ import {
 	fetchProject,
 	fetchProjectsBulk,
 } from "./curseForgeAPI.ts";
-import { VersionManifest } from "#types/versionManifest.ts";
-import { VersionsManifest } from "#types/versionsManifest.ts";
-import { pathspec, SimpleGit, simpleGit } from "simple-git";
-import { Commit, ModChangeInfo } from "#types/changelogTypes.ts";
+import type { VersionManifest } from "#types/versionManifest.ts";
+import type { VersionsManifest } from "#types/versionsManifest.ts";
+import { pathspec, type SimpleGit, simpleGit } from "simple-git";
+import { type Commit, type ModChangeInfo } from "#types/changelogTypes.ts";
 import { modpackManifest, repoName, repoOwner, rootDirectory } from "#globals";
 import { Octokit } from "@octokit/rest";
 import logInfo, { logError, logWarn } from "./log.ts";
 import lodash from "lodash";
 import axios, {
 	AxiosError,
-	AxiosInstance,
-	AxiosRequestConfig,
-	AxiosResponse,
-	AxiosStatic,
+	type AxiosInstance,
+	type AxiosRequestConfig,
+	type AxiosResponse,
+	type AxiosStatic,
 } from "axios";
 import axiosRetry, {
 	DEFAULT_OPTIONS,
-	IAxiosRetryConfig,
-	IAxiosRetryConfigExtended,
+	type IAxiosRetryConfig,
+	type IAxiosRetryConfigExtended,
 	namespace,
 } from "axios-retry";
 import stream from "node:stream";
-import { NomiConfig } from "#types/axios.ts";
+import type { NomiConfig } from "#types/axios.ts";
 import { BuildData } from "#types/transformFiles.js";
 import { retry } from "@octokit/plugin-retry";
 import { throttling } from "@octokit/plugin-throttling";

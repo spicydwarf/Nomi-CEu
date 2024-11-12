@@ -11,7 +11,7 @@ import {
 	tempDirectory,
 } from "#globals";
 import { deleteAsync } from "del";
-import { FileDef } from "#types/fileDef.ts";
+import type { FileDef } from "#types/fileDef.ts";
 import {
 	downloadFileDef,
 	downloadOrRetrieveFileDef,

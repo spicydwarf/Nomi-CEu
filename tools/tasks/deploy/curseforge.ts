@@ -11,14 +11,14 @@ import {
 import sanitize from "sanitize-filename";
 import mustache from "mustache";
 import {
-	DeployReleaseType,
-	InputReleaseType,
+	type DeployReleaseType,
+	type InputReleaseType,
 	inputToDeployReleaseTypes,
 } from "#types/changelogTypes.ts";
 import logInfo from "#utils/log.ts";
-import { CurseForgeLegacyMCVersion } from "#types/curseForge.ts";
+import type { CurseForgeLegacyMCVersion } from "#types/curseForge.ts";
 import * as core from "@actions/core";
-import { AxiosRequestConfig } from "axios";
+import type { AxiosRequestConfig } from "axios";
 import { filesize } from "filesize";
 
 const CURSEFORGE_LEGACY_ENDPOINT = "https://minecraft.curseforge.com/";

@@ -8,7 +8,7 @@ import {
 	name,
 	stripRewards,
 } from "../actionQBUtils.ts";
-import { Quest } from "#types/bqQuestBook.ts";
+import type { Quest } from "#types/bqQuestBook.ts";
 import { performModification } from "./portQBModifications.ts";
 import logInfo, { logNotImportant } from "../../../utils/log.ts";
 

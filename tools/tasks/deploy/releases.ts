@@ -7,8 +7,8 @@ import { makeArtifactNameBody, octokit } from "#utils/util.ts";
 import sanitize from "sanitize-filename";
 import mustache from "mustache";
 import {
-	DeployReleaseType,
-	InputReleaseType,
+	type DeployReleaseType,
+	type InputReleaseType,
 	inputToDeployReleaseTypes,
 } from "#types/changelogTypes.ts";
 

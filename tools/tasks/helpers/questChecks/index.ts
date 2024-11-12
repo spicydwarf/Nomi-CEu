@@ -1,4 +1,4 @@
-import { QuestBook } from "#types/bqQuestBook.ts";
+import type { QuestBook } from "#types/bqQuestBook.ts";
 import fs from "fs";
 import {
 	cfgExpertPath,
@@ -12,7 +12,7 @@ import {
 	stripRewards,
 } from "#tasks/helpers/actionQBUtils.ts";
 import { input, select } from "@inquirer/prompts";
-import { SourceOption } from "#types/actionQBTypes.ts";
+import type { SourceOption } from "#types/actionQBTypes.ts";
 import logInfo, { logWarn } from "#utils/log.ts";
 import upath from "upath";
 import { rootDirectory } from "#globals";

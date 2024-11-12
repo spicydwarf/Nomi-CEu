@@ -1,13 +1,13 @@
-import {
+import type {
 	CurseForgeFileInfo,
 	CurseForgeModInfo,
 	CurseForgeModInfo as CurseForgeProject,
 } from "#types/curseForge.ts";
-import { ModpackManifestFile } from "#types/modpackManifest.ts";
+import type { ModpackManifestFile } from "#types/modpackManifest.ts";
 import buildConfig from "#buildConfig";
 import upath from "upath";
 import fs from "fs";
-import { FileDef } from "#types/fileDef.ts";
+import type { FileDef } from "#types/fileDef.ts";
 import {
 	downloadOrRetrieveFileDef,
 	getAxios,

@@ -1,16 +1,16 @@
 import {
-	ArrayUnique,
+	type ArrayUnique,
 	cleanupVersion,
 	compareAndExpandManifestDependencies,
 	getChangelog,
 	getFileAtRevision,
 	getUniqueToArray,
 } from "#utils/util.ts";
-import {
+import type {
 	ModpackManifest,
 	ModpackManifestFile,
 } from "#types/modpackManifest.ts";
-import {
+import type {
 	ChangelogMessage,
 	Commit,
 	ModChangeInfo,
@@ -19,7 +19,7 @@ import dedent from "dedent-js";
 import mustache from "mustache";
 import { modChangesAllocations } from "./definitions.ts";
 import ChangelogData from "./changelogData.ts";
-import { SpecialChangelogFormatting } from "#types/changelogTypes.ts";
+import type { SpecialChangelogFormatting } from "#types/changelogTypes.ts";
 import { formatMessage, sortCommitListReverse } from "./pusher.ts";
 import { logError } from "#utils/log.ts";
 

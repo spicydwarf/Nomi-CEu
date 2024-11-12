@@ -1,7 +1,7 @@
 import { modpackManifest } from "#globals";
 import { FORGE_MAVEN, getForgeJar, getVersionManifest } from "#utils/util.ts";
 import unzip from "unzipper";
-import { ForgeProfile } from "#types/forgeProfile.ts";
+import type { ForgeProfile } from "#types/forgeProfile.ts";
 import { sha1 } from "hash-wasm";
 import { fetchFileInfo } from "#utils/curseForgeAPI.ts";
 import fs from "fs";

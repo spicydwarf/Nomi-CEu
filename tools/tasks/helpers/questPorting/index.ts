@@ -1,7 +1,7 @@
 import fs from "fs";
 import upath from "upath";
 import { rootDirectory } from "#globals";
-import { Quest, QuestBook, QuestLine } from "#types/bqQuestBook.ts";
+import type { Quest, QuestBook, QuestLine } from "#types/bqQuestBook.ts";
 import { getFileAtRevision, git } from "#utils/util.ts";
 import { getChanged, id, save, setupUtils } from "../actionQBUtils.ts";
 import PortQBData from "./portQBData.ts";

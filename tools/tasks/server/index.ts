@@ -5,8 +5,8 @@ import mustache from "mustache";
 import { src, dest, series } from "gulp";
 import fs from "fs";
 import buildConfig from "#buildConfig";
-import { ForgeProfile } from "#types/forgeProfile.ts";
-import { FileDef } from "#types/fileDef.ts";
+import type { ForgeProfile } from "#types/forgeProfile.ts";
+import type { FileDef } from "#types/fileDef.ts";
 import {
 	downloadOrRetrieveFileDef,
 	getForgeJar,

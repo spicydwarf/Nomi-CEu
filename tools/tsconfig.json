@@ -1,15 +1,19 @@
 {
 	"compilerOptions": {
 		"lib": ["es2023"],
-		"module": "nodenext",
-		"moduleResolution": "nodenext",
+		"module": "preserve",
 		"target": "es2022",
 		"strict": true,
+		"noImplicitOverride": true,
 		"noEmit": true,
-		"outDir": ".dest",
-		"rootDir": ".",
+		"baseUrl": ".",
+
+		"moduleDetection": "force",
+		"isolatedModules": true,
+		"verbatimModuleSyntax": true,
 		"allowImportingTsExtensions": true,
 		"resolvePackageJsonImports": true,
+
 		"esModuleInterop": true,
 		"skipLibCheck": true,
 		"resolveJsonModule": true

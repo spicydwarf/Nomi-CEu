@@ -1,30 +1,30 @@
 import {
-	BunchedParserPath,
-	ChangeAndPath,
-	CustomDescriptionTaskTemplate,
-	DescriptionTaskChange,
+	type BunchedParserPath,
+	type ChangeAndPath,
+	type CustomDescriptionTaskTemplate,
+	type DescriptionTaskChange,
 	LogicType,
 	Message,
-	Modified,
-	Parser,
-	QuestChange,
-	SimpleLogic,
-	TaskDifferentSolution,
-	YesIgnoreNo,
+	type Modified,
+	type Parser,
+	type QuestChange,
+	type SimpleLogic,
+	type TaskDifferentSolution,
+	type YesIgnoreNo,
 } from "#types/actionQBTypes.ts";
 import PortQBData from "./portQBData.ts";
 import DiffMatchPatch from "diff-match-patch";
 import picomatch from "picomatch";
 import { booleanSelect, findQuest, id, name } from "../actionQBUtils.ts";
 import fakeDiff from "fake-diff";
-import { Operation } from "just-diff";
+import type { Operation } from "just-diff";
 import logInfo, { logError, logNotImportant, logWarn } from "#utils/log.ts";
 import dedent from "dedent-js";
 import { editor, input, select } from "@inquirer/prompts";
 import colors from "colors";
 import { stringify } from "javascript-stringify";
-import { Quest, Task } from "#types/bqQuestBook.ts";
-import { ArrayUnique } from "#utils/util.ts";
+import type { Quest, Task } from "#types/bqQuestBook.ts";
+import type { ArrayUnique } from "#utils/util.ts";
 import lodash from "lodash";
 
 let data: PortQBData;
@@ -721,7 +721,7 @@ const modifyPrerequisites = async (
 			id(toAdd),
 			index === -1 || !preRequisiteTypeArrayCurrent
 				? 0
-				: preRequisiteTypeArrayCurrent[index] ?? 0,
+				: (preRequisiteTypeArrayCurrent[index] ?? 0),
 		);
 	}
 

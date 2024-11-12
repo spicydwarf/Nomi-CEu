@@ -1,5 +1,5 @@
 import { sha1, md5 } from "hash-wasm";
-import { HashDef } from "#types/hashDef.ts";
+import type { HashDef } from "#types/hashDef.ts";
 
 /**
  * Returns the hash sum of bytes of given bytes using SHA1.

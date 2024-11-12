@@ -1,5 +1,5 @@
 import { categories } from "./definitions.ts";
-import {
+import type {
 	Category,
 	ChangelogMessage,
 	SubCategory,

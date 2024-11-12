@@ -8,7 +8,7 @@ import fs from "fs";
 import upath from "upath";
 import buildConfig from "#buildConfig";
 import { deleteAsync } from "del";
-import { createModList, ModFileInfo } from "../misc/createModList.ts";
+import { createModList, type ModFileInfo } from "../misc/createModList.ts";
 import dedent from "dedent-js";
 import {
 	cleanupVersion,

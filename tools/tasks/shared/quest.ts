@@ -6,11 +6,7 @@ import {
 	configOverridesFolder,
 	sharedDestDirectory,
 } from "#globals";
-import {
-	Quest,
-	QuestBook,
-	QuestLine as QuestLine,
-} from "#types/bqQuestBook.ts";
+import type { Quest, QuestBook, QuestLine } from "#types/bqQuestBook.ts";
 
 const sharedQBDefaults = upath.join(
 	sharedDestDirectory,

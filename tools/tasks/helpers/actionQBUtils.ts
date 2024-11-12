@@ -1,6 +1,11 @@
-import { Icon, Quest, QuestBook, QuestVisibility } from "#types/bqQuestBook.ts";
+import type {
+	Icon,
+	Quest,
+	QuestBook,
+	QuestVisibility,
+} from "#types/bqQuestBook.ts";
 import { diff } from "just-diff";
-import {
+import type {
 	Changed,
 	YesIgnoreNo,
 	QuestChange,

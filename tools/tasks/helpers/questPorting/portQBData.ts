@@ -1,5 +1,5 @@
 import { checkbox, input, select } from "@inquirer/prompts";
-import {
+import type {
 	Changed,
 	PortingType,
 	SavedPorter,
@@ -14,7 +14,7 @@ import {
 	readFromPorter,
 	savedQuestPorter,
 } from "../actionQBUtils.ts";
-import { Quest, QuestLine } from "#types/bqQuestBook.ts";
+import type { Quest, QuestLine } from "#types/bqQuestBook.ts";
 import fs from "fs";
 import logInfo from "#utils/log.ts";
 import { modificationParsers } from "./portQBModifications.ts";

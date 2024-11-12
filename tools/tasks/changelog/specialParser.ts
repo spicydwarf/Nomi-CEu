@@ -1,19 +1,19 @@
 import {
-	AuthorInfo,
-	ChangelogMessage,
-	Commit,
-	ExpandedMessage,
-	FixUpInfo,
+	type AuthorInfo,
+	type ChangelogMessage,
+	type Commit,
+	type ExpandedMessage,
+	type FixUpInfo,
 	Ignored,
-	IgnoreInfo,
-	IgnoreLogic,
-	ModInfo,
-	ParsedModInfo,
-	Parser,
-	PriorityInfo,
+	type IgnoreInfo,
+	type IgnoreLogic,
+	type ModInfo,
+	type ParsedModInfo,
+	type Parser,
+	type PriorityInfo,
 } from "#types/changelogTypes.ts";
 import dedent from "dedent-js";
-import matter, { GrayMatterFile } from "gray-matter";
+import matter, { type GrayMatterFile } from "gray-matter";
 import {
 	coAuthorsKey,
 	coAuthorsList,
