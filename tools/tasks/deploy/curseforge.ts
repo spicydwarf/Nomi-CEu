@@ -3,7 +3,6 @@ import { modpackManifest } from "#globals";
 import fs from "node:fs";
 import path from "node:path";
 import * as core from "@actions/core";
-import type { AxiosRequestConfig } from "axios";
 import mustache from "mustache";
 import buildConfig from "#buildConfig";
 import {
@@ -14,8 +13,8 @@ import {
 import type { CurseForgeLegacyMCVersion } from "#types/curseForge.ts";
 import { logInfo } from "#utils/log.ts";
 import {
+	fetchWithRetry,
 	filesize,
-	getAxios,
 	isEnvVariableSet,
 	makeArtifactNameBody,
 	sanitizeFilename,
@@ -53,20 +52,20 @@ async function upload(files: { name: string; displayName: string }[]) {
 		CF_REDIRECT: `<h4 style="text-align: center;">Looks way better <a href="https://github.com/Nomi-CEu/Nomi-CEu/releases/tag/${process.env.GITHUB_TAG}">here.</a></h4>`,
 	});
 
-	const tokenHeaders = {
-		"X-Api-Token": process.env.CURSEFORGE_API_TOKEN,
-	};
+	const tokenHeaders = new Headers();
+	tokenHeaders.set("X-Api-Token", process.env.CURSEFORGE_API_TOKEN ?? "");
 
 	// Fetch the list of Minecraft versions from CurseForge.
 	logInfo("Fetching CurseForge version manifest...");
-	const versionsManifest: CurseForgeLegacyMCVersion[] | undefined = (
-		await getAxios()({
-			url: `${CURSEFORGE_LEGACY_ENDPOINT}api/game/versions`,
-			method: "get",
+	const versionsManifestResponse = await fetchWithRetry(
+		`${CURSEFORGE_LEGACY_ENDPOINT}api/game/versions`,
+		{
 			headers: tokenHeaders,
-			responseType: "json",
-		})
-	).data;
+		},
+	);
+	const versionsManifest = (await versionsManifestResponse.json()) as
+		| CurseForgeLegacyMCVersion[]
+		| undefined;
 
 	if (!versionsManifest) {
 		throw new Error("Failed to fetch CurseForge version manifest.");
@@ -91,43 +90,51 @@ async function upload(files: { name: string; displayName: string }[]) {
 			(process.env.RELEASE_TYPE ?? "Release") as InputReleaseType
 		];
 
+	const baseUploadOptions: RequestInit = {
+		method: "POST",
+		headers: {
+			...tokenHeaders,
+			"Content-Type": "multipart/form-data",
+		},
+	};
+
 	// Upload artifacts.
 	for (const filePath of filePaths) {
-		const options: AxiosRequestConfig<unknown> = {
-			url: `${CURSEFORGE_LEGACY_ENDPOINT}api/projects/${process.env.CURSEFORGE_PROJECT_ID}/upload-file`,
-			method: "post",
-			headers: {
-				...tokenHeaders,
-				"Content-Type": "multipart/form-data",
-			},
-			data: {
-				metadata: JSON.stringify({
-					changelog: changelog,
-					changelogType: "html",
-					releaseType: releaseType ? releaseType.cfReleaseType : "release",
-					parentFileID: parentID ? parentID : undefined,
-					gameVersions: parentID ? undefined : [version.id],
-					displayName: filePath.file.displayName,
-				}),
-				file: fs.createReadStream(filePath.path),
-			},
-			responseType: "json",
-		};
+		const metadata = JSON.stringify({
+			changelog: changelog,
+			changelogType: "html",
+			releaseType: releaseType ? releaseType.cfReleaseType : "release",
+			parentFileID: parentID ? parentID : undefined,
+			gameVersions: parentID ? undefined : [version.id],
+			displayName: filePath.file.displayName,
+		});
+
+		const formData = new FormData();
+		formData.append("metadata", metadata);
+		formData.append("file", fs.openAsBlob(filePath.path));
+
+		const options = baseUploadOptions;
+
+		options.body = formData;
 
 		logInfo(
 			`Uploading ${filePath.file.name} to CurseForge...${parentID ? `(child of ${parentID})` : ""}`,
 		);
 
-		const response: { id: number } = (await getAxios()(options)).data;
+		const response = await fetchWithRetry(
+			`${CURSEFORGE_LEGACY_ENDPOINT}api/projects/${process.env.CURSEFORGE_PROJECT_ID}/upload-file`,
+			options,
+		);
+		const data = (await response.json()) as { id: number } | undefined;
 
-		if (response?.id) {
+		if (data?.id) {
 			uploadedIDs.push({
 				filePath: filePath.path,
 				displayName: filePath.file.displayName,
-				id: response.id,
+				id: data.id,
 			});
 			if (!parentID) {
-				parentID = response.id;
+				parentID = data.id;
 			}
 		} else {
 			throw new Error(

@@ -1,28 +1,14 @@
 import { execSync } from "node:child_process";
 import fs from "node:fs";
 import path from "node:path";
-import stream from "node:stream";
+import { setTimeout as setTimeoutAsync } from "node:timers/promises";
 import { retry } from "@octokit/plugin-retry";
 import { throttling } from "@octokit/plugin-throttling";
 import { Octokit } from "@octokit/rest";
-import axios, {
-	AxiosError,
-	type AxiosInstance,
-	type AxiosRequestConfig,
-	type AxiosResponse,
-	type AxiosStatic,
-} from "axios";
-import axiosRetry, {
-	DEFAULT_OPTIONS,
-	type IAxiosRetryConfig,
-	type IAxiosRetryConfigExtended,
-	namespace,
-} from "axios-retry";
 import lodash from "lodash";
 import { type SimpleGit, pathspec, simpleGit } from "simple-git";
 import buildConfig from "#buildConfig";
 import { modpackManifest, repoName, repoOwner, rootDirectory } from "#globals";
-import type { NomiConfig } from "#types/axios.ts";
 import type { Commit, ModChangeInfo } from "#types/changelogTypes.ts";
 import type { FileDef } from "#types/fileDef.ts";
 import type {
@@ -88,62 +74,35 @@ export const octokit = new RetryOctokit({
 	},
 });
 
-const retryCfg: IAxiosRetryConfig = {
-	retries: 10,
-	retryDelay: (count) => count * 100,
-	onRetry: (count, error, cfg) =>
-		logWarn(
-			`Retrying HTTP Request of URL ${cfg.url} in 100ms. (${error.message}) (${count} Times)`,
-		),
-	onMaxRetryTimesExceeded: (error) => {
-		throw error;
-	},
-};
+export async function fetchWithRetry(
+	url: string,
+	options: RequestInit = {},
+	retries = 10,
+): Promise<Response> {
+	for (let attempt = 1; attempt <= retries; attempt++) {
+		try {
+			const response = await fetch(url, options);
+			if (!response.ok) {
+				throw new Error(`HTTP error! status: ${response.status}`);
+			}
+			return response;
+		} catch (error) {
+			if (attempt === retries) throw error;
 
-axiosRetry(axios, retryCfg);
-
-const fileDownloader = axios.create();
-axiosRetry(fileDownloader, retryCfg);
-fileDownloader.interceptors.response.use(async (response) => {
-	if (response.status < 200 || response.status > 299) return response; // Error, Probably Handled by Axios Retry
-	if (!response.data || !(response.data instanceof stream.Stream))
-		return retryOrThrow(response, "No Response Error");
-
-	const buf: Uint8Array[] = [];
-	const dataStream = response.data as stream.Stream;
-	const buffer = await new Promise<Buffer>((resolve) => {
-		dataStream.on("data", (chunk) => buf.push(chunk));
-		dataStream.on("end", () => {
-			resolve(Buffer.concat(buf));
-		});
-	});
-
-	const nomiCfg = response.config.nomiCfg as Required<NomiConfig>;
-	const url = response.config.url ?? nomiCfg.fileDef.url;
-
-	// If Buffer Does not Match, Retry
-	if (!buffer)
-		throw new Error(`Failed to Download File from ${url}, no Buffer Returned!`);
-	if (nomiCfg.fileDef.hashes) {
-		let success = true;
-		for (const hash of nomiCfg.fileDef.hashes) {
-			if (await compareBufferToHashDef(buffer, hash)) continue;
-			success = false;
-			break;
-		}
-		if (!success)
-			return retryOrThrow(
-				response,
-				`Failed to Download File from ${url}, File Checksum Checking Failed!`,
+			const delay = attempt * 100;
+			logWarn(
+				`Retrying ${url} in ${delay}ms. Attempt ${attempt} of ${retries}`,
 			);
+			await setTimeoutAsync(delay);
+		}
 	}
+	throw new Error(`Failed to fetch ${url} after ${retries} attempts`);
+}
 
-	response.data = buffer;
-	return response;
-}, null);
+export async function downloadFile(url: string) {
+	const response = await fetchWithRetry(url);
 
-export function getAxios(): AxiosStatic {
-	return axios;
+	return Buffer.from(await response.arrayBuffer());
 }
 
 /**
@@ -276,80 +235,17 @@ export async function downloadOrRetrieveFileDef(
  * Similar to downloadOrRetrieveFileDef, but does not check cache.
  */
 export async function downloadFileDef(fileDef: FileDef): Promise<Buffer> {
-	const response = await fileDownloader({
-		method: "get",
-		responseType: "stream",
-		url: fileDef.url,
-		nomiCfg: {
-			fileDef: fileDef,
-		},
-	});
+	const buffer = await downloadFile(fileDef.url);
 
-	return response.data as Buffer;
-}
-
-function fixConfig(
-	axiosInstance: AxiosInstance | AxiosStatic,
-	config: AxiosRequestConfig,
-) {
-	// @ts-expect-error agent non-existent in type declaration`
-	if (axiosInstance.defaults.agent === config.agent) {
-		// @ts-expect-error agent non-existent in type declaration
-		config.agent = undefined;
-	}
-	if (axiosInstance.defaults.httpAgent === config.httpAgent) {
-		config.httpAgent = undefined;
-	}
-	if (axiosInstance.defaults.httpsAgent === config.httpsAgent) {
-		config.httpsAgent = undefined;
-	}
-}
-
-/**
- * Use Axios Retry API to retry if Hash Failed or No Response.
- */
-function retryOrThrow(
-	response: AxiosResponse<unknown, unknown>,
-	error: string,
-) {
-	const currentState = {
-		...DEFAULT_OPTIONS,
-		...retryCfg,
-		...response.config[namespace],
-	};
-	const config = { ...response.config };
-
-	currentState.retryCount = currentState.retryCount || 0;
-	currentState.lastRequestTime = currentState.lastRequestTime || Date.now();
-	config[namespace] = currentState;
-
-	const axiosError = new AxiosError<unknown, unknown>();
-
-	const retryState = currentState as Required<IAxiosRetryConfigExtended>;
-	if (retryState.retryCount < retryState.retries) {
-		retryState.retryCount++;
-		const delay = retryState.retryDelay(retryState.retryCount, axiosError);
-		fixConfig(fileDownloader, config);
-		if (
-			!retryState.shouldResetTimeout &&
-			config.timeout &&
-			currentState.lastRequestTime
-		) {
-			const lastRequestDuration = Date.now() - currentState.lastRequestTime;
-			const timeout = config.timeout - lastRequestDuration - delay;
-			if (timeout <= 0) throw new Error(error);
-			config.timeout = timeout;
+	if (fileDef.hashes) {
+		for (const hash of fileDef.hashes) {
+			if (!(await compareBufferToHashDef(buffer, hash))) {
+				throw new Error(`Checksum failed for ${fileDef.url}`);
+			}
 		}
-		config.transformRequest = [(data) => data];
-		axiosError.message = error;
-		retryState.onRetry(retryState.retryCount, axiosError, config);
-
-		return new Promise<AxiosResponse<unknown, unknown>>((resolve) => {
-			setTimeout(() => resolve(fileDownloader(config)), delay);
-		});
 	}
 
-	throw new Error(error);
+	return buffer;
 }
 
 /**
@@ -614,13 +510,10 @@ export async function getVersionManifest(
 	/**
 	 * Fetch the manifest file of all Minecraft versions.
 	 */
-	const manifest: VersionsManifest = (
-		await axios({
-			url: LAUNCHERMETA_VERSION_MANIFEST,
-			method: "get",
-			responseType: "json",
-		})
-	)?.data;
+	const manifestResponse = await fetchWithRetry(LAUNCHERMETA_VERSION_MANIFEST);
+	const manifest = (await manifestResponse.json()) as
+		| VersionsManifest
+		| undefined;
 
 	if (!manifest) return undefined;
 
@@ -629,13 +522,9 @@ export async function getVersionManifest(
 		return;
 	}
 
-	return (
-		await axios({
-			url: version.url,
-			method: "get",
-			responseType: "json",
-		})
-	)?.data;
+	const response = await fetchWithRetry(version.url);
+
+	return (await response.json()) as VersionManifest | undefined;
 }
 
 /**

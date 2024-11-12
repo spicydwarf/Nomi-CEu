@@ -12,18 +12,20 @@ import { logError, logInfo, logWarn } from "./log.ts";
 import {
 	RetrievedFileDefReason,
 	downloadOrRetrieveFileDef,
-	getAxios,
+	fetchWithRetry,
 } from "./util.ts";
 
-function getCurseForgeToken() {
+function getCurseForgeHeaders() {
 	const vari = "CFCORE_API_TOKEN";
 	const val = process.env[vari];
 
-	if (!process.env[vari]) {
+	if (!val) {
 		throw new Error(`Environmental variable ${vari} is unset.`);
 	}
 
-	return val;
+	const headers = new Headers();
+	headers.set("X-Api-Token", val as string);
+	return headers;
 }
 
 const curseForgeProjectCache: { [key: number]: CurseForgeProject } = {};
@@ -34,16 +36,16 @@ export async function fetchProject(
 		return curseForgeProjectCache[toFetch] as CurseForgeProject;
 	}
 
+	const projectResponse = await fetchWithRetry(
+		`${buildConfig.cfCoreApiEndpoint}/v1/mods/${toFetch}`,
+		{
+			headers: getCurseForgeHeaders(),
+		},
+	);
+
 	const project: CurseForgeProject | undefined = (
-		await getAxios()({
-			url: `${buildConfig.cfCoreApiEndpoint}/v1/mods/${toFetch}`,
-			method: "get",
-			responseType: "json",
-			headers: {
-				"X-Api-Key": getCurseForgeToken(),
-			},
-		})
-	).data?.data;
+		(await projectResponse.json()) as { data: CurseForgeProject } | undefined
+	)?.data;
 
 	if (!project) {
 		throw new Error(`Failed to fetch project ${toFetch}`);
@@ -65,16 +67,16 @@ export async function fetchFileInfo(
 		return fetchedFileInfoCache[slug] as CurseForgeFileInfo;
 	}
 
-	const fileInfo: CurseForgeFileInfo = (
-		await getAxios()({
-			url: `${buildConfig.cfCoreApiEndpoint}/v1/mods/${projectID}/files/${fileID}`,
-			method: "get",
-			responseType: "json",
-			headers: {
-				"X-Api-Key": getCurseForgeToken(),
-			},
-		})
-	).data?.data;
+	const fileInfoResponse = await fetchWithRetry(
+		`${buildConfig.cfCoreApiEndpoint}/v1/mods/${projectID}/files/${fileID}`,
+		{
+			headers: getCurseForgeHeaders(),
+		},
+	);
+
+	const fileInfo = (
+		(await fileInfoResponse.json()) as { data: CurseForgeFileInfo } | undefined
+	)?.data;
 
 	if (!fileInfo) {
 		throw new Error(`Failed to download file ${projectID}/file/${fileID}`);
@@ -117,18 +119,20 @@ export async function fetchFilesBulk(
 
 	if (unfetched.length > 0) {
 		// Augment the array of known files with new info.
-		const fetched: CurseForgeFileInfo[] = (
-			await getAxios()({
-				url: `${buildConfig.cfCoreApiEndpoint}/v1/mods/files`,
-				method: "post",
-				data: {
+		const response = await fetchWithRetry(
+			`${buildConfig.cfCoreApiEndpoint}/v1/mods/files`,
+			{
+				method: "POST",
+				headers: getCurseForgeHeaders(),
+				body: JSON.stringify({
 					fileIds: unfetched.map((file) => file.fileID),
-				},
-				headers: {
-					"X-Api-Key": getCurseForgeToken(),
-				},
-			})
-		).data?.data;
+				}),
+			},
+		);
+
+		const fetched: CurseForgeFileInfo[] =
+			((await response.json()) as { data: CurseForgeFileInfo[] } | undefined)
+				?.data ?? [];
 
 		if (!fetched) {
 			throw new Error(
@@ -231,18 +235,20 @@ export async function fetchProjectsBulk(
 
 	if (unfetched.length > 0) {
 		// Augment the array of known projects with new info.
-		const fetched: CurseForgeProject[] = (
-			await getAxios()({
-				url: `${buildConfig.cfCoreApiEndpoint}/v1/mods`,
-				method: "post",
-				data: {
+		const response = await fetchWithRetry(
+			`${buildConfig.cfCoreApiEndpoint}/v1/mods`,
+			{
+				method: "POST",
+				headers: getCurseForgeHeaders(),
+				body: JSON.stringify({
 					modIds: unfetched,
-				},
-				headers: {
-					"X-Api-Key": getCurseForgeToken(),
-				},
-			})
-		).data?.data;
+				}),
+			},
+		);
+
+		const fetched: CurseForgeProject[] =
+			((await response.json()) as { data: CurseForgeProject[] } | undefined)
+				?.data ?? [];
 
 		if (!fetched) {
 			throw new Error(`Failed to bulk-fetch projects ${unfetched.join(", ")}`);
