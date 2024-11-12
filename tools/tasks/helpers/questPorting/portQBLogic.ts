@@ -60,8 +60,8 @@ export async function additions(): Promise<void> {
 		const depTypes = quest["preRequisiteTypes:7"];
 		const useDepTypes = depTypes && depTypes.length === deps.length;
 
-		for (let i = 0; i < deps.length; i++) {
-			const depQuest = await findQuest(deps[i]);
+		for (const [i, dep] of deps.entries()) {
+			const depQuest = await findQuest(dep);
 			if (!depQuest) {
 				deps.splice(i, 1);
 				if (useDepTypes) {
@@ -127,9 +127,10 @@ export async function removals(): Promise<void> {
 		// Remove quest from Quest Lines
 		if (data.questLines) {
 			for (const line of data.questLines) {
-				for (const key of Object.keys(line["quests:9"])) {
-					const questInfo = line["quests:9"][key];
-					if (newId === questInfo["id:3"]) delete line["quests:9"][key];
+				for (const [key, questInfo] of Object.entries(line["quests:9"])) {
+					if (newId === questInfo["id:3"]) {
+						delete line["quests:9"][key];
+					}
 				}
 			}
 		}

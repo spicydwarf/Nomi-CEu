@@ -163,8 +163,8 @@ async function checkAndFixQB(
 	for (const questKey of Object.keys(qb["questDatabase:9"])) {
 		// Copy Quest if Should Check is false (So we don't modify the underlying object)
 		const quest = shouldCheck
-			? qb["questDatabase:9"][questKey]
-			: { ...qb["questDatabase:9"][questKey] };
+			? qb["questDatabase:9"][questKey]!
+			: { ...qb["questDatabase:9"][questKey]! };
 
 		const foundID = id(quest);
 
@@ -263,8 +263,7 @@ async function checkAndFixQB(
 
 		let rightOrder = true;
 		let prev: number = -1; // Smallest ID is 0
-		for (let i = 0; i < oldPrerequisites.length; i++) {
-			const pre = oldPrerequisites[i];
+		for (const [i, pre] of oldPrerequisites.entries()) {
 			if (prev < pre) {
 				prev = pre;
 				continue;
@@ -294,14 +293,14 @@ async function checkAndFixQB(
 			const types = quest["preRequisiteTypes:7"];
 			if (!types) quest["preRequisites:11"].sort((a, b) => a - b);
 			else {
-				const preRequisites = new Map<number, number>();
-				quest["preRequisites:11"].forEach((pre, index) =>
-					preRequisites.set(pre, types[index]),
-				);
+				const preRequisites = new Map<number, number | undefined>();
+				for (const [index, pre] of quest["preRequisites:11"].entries()) {
+					preRequisites.set(pre, types[index]);
+				}
 
 				quest["preRequisites:11"].sort((a, b) => a - b);
-				for (let i = 0; i < quest["preRequisites:11"].length; i++) {
-					types[i] = preRequisites.get(quest["preRequisites:11"][i]) ?? 0;
+				for (const [i, prerequisite] of quest["preRequisites:11"].entries()) {
+					types[i] = preRequisites.get(prerequisite) ?? 0;
 				}
 			}
 		}
@@ -315,7 +314,7 @@ async function checkAndFixQB(
 	// Check for Redundant Formatting in Quest Lines
 	logInfo("Checking Quest Lines...");
 	for (const lineKey of Object.keys(qb["questLines:9"])) {
-		const line = qb["questLines:9"][lineKey];
+		const line = qb["questLines:9"][lineKey]!;
 		line["properties:10"]["betterquesting:10"]["name:8"] =
 			stripOrThrowExcessSpacesOrFormatting(
 				shouldCheck,

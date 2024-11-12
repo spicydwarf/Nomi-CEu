@@ -31,8 +31,7 @@ function transformKeyPairs<T extends Quest | QuestLine>(
 	lines: string[],
 	getId: (item: T) => number,
 ) {
-	Object.keys(database).forEach((key) => {
-		const item = database[key];
+	for (const item of Object.values(database)) {
 		const id = getId(item);
 
 		const properties = item["properties:10"]["betterquesting:10"];
@@ -54,7 +53,7 @@ function transformKeyPairs<T extends Quest | QuestLine>(
 			properties["name:8"] = "";
 			properties["desc:8"] = "";
 		}
-	});
+	}
 }
 
 /**

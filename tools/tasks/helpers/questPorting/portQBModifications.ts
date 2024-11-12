@@ -49,13 +49,13 @@ export async function performModification(modify: Modified): Promise<void> {
 	// Relying on the fact that the messages are sorted, condense duplicates.
 	const output: Message[] = [];
 	let lastMsg: string | undefined = undefined;
-	for (let i = 0; i < formattedNames.length; i++) {
-		if (i !== 0 && formattedNames[i] === lastMsg) {
-			output[i - 1].incrementRepeats();
+	for (const [i, formattedName] of formattedNames.entries()) {
+		if (i !== 0 && formattedName === lastMsg) {
+			output[i - 1]?.incrementRepeats();
 			continue;
 		}
-		output.push(new Message(formattedNames[i]));
-		lastMsg = formattedNames[i];
+		output.push(new Message(formattedName));
+		lastMsg = formattedName;
 	}
 
 	if (
@@ -112,12 +112,10 @@ function findAllParsers(modify: Modified): {
 	const foundBuncableParsers = new Map<string, BunchedParserPath[]>();
 	const foundSimpleParserIds = new Set<string>();
 	for (const change of modify.change) {
-		const pathList = (change.path as string[] | number[]).map(
-			(path: string | number): string => {
-				if (typeof path === "number") path = (path as number).toString();
-				return path.split(":")[0];
-			},
+		const pathList = change.path.map((path) =>
+			typeof path === "number" ? path.toString() : path.split(":")[0]!,
 		);
+
 		const path = pathList.join("/");
 
 		// Instead of filtering out ignored parsers before, we must check if the parser match is one that is ignored
@@ -172,7 +170,7 @@ function findAllParsers(modify: Modified): {
 			for (const parserBunch of foundBuncableParsers.get(parser.id) ?? []) {
 				if (
 					!parserBunch.logic.applyTogether(
-						parserBunch.changeAndPath[0].path,
+						parserBunch.changeAndPath[0]!.path,
 						pathList,
 					)
 				)
@@ -412,17 +410,15 @@ const modifyTasks = async (
 		if (index < 0)
 			throw new Error("Invalid Path! Report to the Core Devs of Nomi-CEu!");
 
-		// Are we adding/removing a whole task?
-		if (
-			changes.length === 1 &&
-			isAddingOrRemovingComplexTask(changes[0].path)
-		) {
-			let task: Task;
-			const change = changes[0];
+		const change = changes[0]!;
 
-			if (change.change.op === "add")
-				task = newTasks[change.change.path.at(-1) ?? "0:10"];
-			else {
+		// Are we adding/removing a whole task?
+		if (changes.length === 1 && isAddingOrRemovingComplexTask(change.path)) {
+			let task: Task;
+
+			if (change.change.op === "add") {
+				task = newTasks[change.change.path.at(-1) ?? "0:10"]!;
+			} else {
 				const foundTask = toModify.get(index);
 				if (!foundTask) {
 					logError(
@@ -463,7 +459,7 @@ const modifyTasks = async (
 
 		// Modification of a Task
 		const oldTask = Object.values(oldTasks)[index];
-		const newTask = Object.values(newTasks)[index];
+		const newTask = Object.values(newTasks)[index]!;
 		let task = toModify.get(index);
 		if (same) {
 			if (!task) {
@@ -690,10 +686,7 @@ const modifyPrerequisites = async (
 	const preRequisites = new Map<number, number>();
 
 	preRequisiteArray.forEach((pre, index) =>
-		preRequisites.set(
-			pre,
-			preRequisiteTypeArray ? preRequisiteTypeArray[index] : 0,
-		),
+		preRequisites.set(pre, preRequisiteTypeArray?.[index] ?? 0),
 	);
 
 	// Unique to Current: Added.
@@ -757,8 +750,8 @@ const modifyPrerequisites = async (
 	)
 		return;
 	const types: number[] = [];
-	for (let i = 0; i < questToModify["preRequisites:11"].length; i++) {
-		types[i] = preRequisites.get(questToModify["preRequisites:11"][i]) ?? 0;
+	for (const [i, pre] of questToModify["preRequisites:11"].entries()) {
+		types[i] = preRequisites.get(pre) ?? 0;
 	}
 	questToModify["preRequisiteTypes:7"] = types;
 };
@@ -809,7 +802,7 @@ function isAddingOrRemovingComplexTask(path: string[]): boolean {
 function getIndex(path: string[], pathKey: string): number {
 	const index = path.indexOf(pathKey) + 1;
 	if (index == 0 || index >= path.length) return -1; // indexOf returns -1 if not found, +1 = 0
-	const num = Number.parseInt(path[index]);
+	const num = Number.parseInt(path[index]!);
 	if (Number.isNaN(num)) return -1;
 	return num;
 }

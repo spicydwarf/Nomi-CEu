@@ -153,13 +153,9 @@ export function getAxios(): AxiosStatic {
  * Turns `package:name:version` into `package/name/version/name-version`.
  */
 export const libraryToPath = (library: string): string => {
-	const parsedLibrary = LIBRARY_REG.exec(library);
-	if (parsedLibrary) {
-		const pkg = parsedLibrary[1].replace(/\./g, "/");
-		const name = parsedLibrary[2];
-		const version = parsedLibrary[3];
-
-		return `${pkg}/${name}/${version}/${name}-${version}`;
+	const [, pkg, name, version] = library.match(LIBRARY_REG) ?? [];
+	if (pkg && name && version) {
+		return `${pkg.replace(/\./g, "/")}/${name}/${version}/${name}-${version}`;
 	}
 	return "";
 };
@@ -529,11 +525,11 @@ export async function compareAndExpandManifestDependencies(
 			);
 		}
 		// Exists in both. Modified? Inner join.
-		else if (oldFileInfo.fileID != newFileInfo.fileID) {
+		else if (oldFileInfo!.fileID != newFileInfo!.fileID) {
 			const names = Promise.all([
 				getModName(projectID),
-				getFileName(projectID, oldFileInfo.fileID),
-				getFileName(projectID, newFileInfo.fileID),
+				getFileName(projectID, oldFileInfo!.fileID),
+				getFileName(projectID, newFileInfo!.fileID),
 			]);
 			toFetch.push(
 				names.then(([mod, oldFile, newFile]) => {
@@ -547,6 +543,7 @@ export async function compareAndExpandManifestDependencies(
 			);
 		}
 	}
+
 	// Fetch All Modifications Async
 	await Promise.all(toFetch);
 
@@ -584,8 +581,8 @@ export async function compareAndExpandManifestDependencies(
 			added.push({ modName: newDep.name });
 		}
 		// Exists in both. Modified? Inner join.
-		else if (oldDep.url != newDep.url || oldDep.name != newDep.name) {
-			modified.push({ modName: newDep.name });
+		else if (oldDep!.url != newDep!.url || oldDep!.name != newDep!.name) {
+			modified.push({ modName: newDep!.name });
 		}
 	});
 
@@ -647,9 +644,9 @@ export function cleanupVersion(version?: string): string {
 	const list = version.match(/[\d+.?]+/g);
 	if (!list) return version;
 
-	if (list[list.length - 1] == "0") return version;
+	if (list.at(-1) == "0") return version;
 
-	return list[list.length - 1];
+	return list.at(-1)!;
 }
 
 const issueURLCache: Map<number, string> = new Map<number, string>();

@@ -13,8 +13,8 @@ export async function makeArtifactNames(): Promise<void> {
 		mmc: body + "-mmc",
 	};
 
-	Object.keys(names).forEach((name) => {
-		setOutput(name, sanitize(names[name].toLowerCase()));
-		logInfo(`Made Name for Type '${name}': '${names[name].toLowerCase()}'`);
-	});
+	for (const [type, name] of Object.entries(names)) {
+		setOutput(type, sanitize(name.toLowerCase()));
+		logInfo(`Made Name for Type '${type}': '${name.toLowerCase()}'`);
+	}
 }

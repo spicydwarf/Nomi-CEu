@@ -40,7 +40,7 @@ export async function compareBufferToHashDef(
 		throw new Error(`No hash function found for ${hashDef.id}.`);
 	}
 
-	const sum = await hashFuncs[hashDef.id](buffer);
+	const sum = await hashFuncs[hashDef.id]!(buffer);
 	return (
 		(Array.isArray(hashDef.hashes) && hashDef.hashes.includes(sum)) ||
 		hashDef.hashes == sum

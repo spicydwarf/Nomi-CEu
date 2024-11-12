@@ -47,14 +47,16 @@ async function deployReleases(): Promise<void> {
 		}
 	});
 
-	const parsedSlug = /(.+)\/(.+)/.exec(process.env.GITHUB_REPOSITORY ?? "");
-	if (!parsedSlug) {
+	const [, owner, repoName] =
+		process.env.GITHUB_REPOSITORY?.match(/(.+)\/(.+)/) ?? [];
+
+	if (!owner || !repoName) {
 		throw new Error("No/malformed GitHub repository slug provided.");
 	}
 
 	const repo = {
-		owner: parsedSlug[1],
-		repo: parsedSlug[2],
+		owner,
+		repo: repoName,
 	};
 
 	const tag = process.env.GITHUB_TAG;

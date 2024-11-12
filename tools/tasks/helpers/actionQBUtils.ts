@@ -1,9 +1,4 @@
-import type {
-	Icon,
-	Quest,
-	QuestBook,
-	QuestVisibility,
-} from "#types/bqQuestBook.ts";
+import type { Quest, QuestBook, QuestVisibility } from "#types/bqQuestBook.ts";
 import { diff } from "just-diff";
 import type {
 	Changed,
@@ -12,6 +7,7 @@ import type {
 	Replacements,
 	SavedPorter,
 	SpecialModifierHandler,
+	Modified,
 } from "#types/actionQBTypes.ts";
 import upath from "upath";
 import fs from "fs";
@@ -144,8 +140,7 @@ export function stripRewards(quest: Quest, shouldCheck = false, log = false) {
 		)
 			continue;
 
-		for (const itemKey of Object.keys(reward["rewards:9"])) {
-			const item: Icon = reward["rewards:9"][itemKey];
+		for (const [itemKey, item] of Object.entries(reward["rewards:9"])) {
 			if (item && item["id:8"] && nomiCoinMatcher.test(item["id:8"])) {
 				if (shouldCheck)
 					throw new Error(
@@ -398,59 +393,71 @@ const specialModifierHandlers: SpecialModifierHandler[] = [
 	},
 ];
 
-export function getChanged(
-	currentQuests: Quest[],
-	oldQuests: Quest[],
-): Changed {
-	// i is current iter, j is old iter
-	let i = 0;
-	let j = 0;
-	const changed: Changed = { added: [], modified: [], removed: [] };
-	while (i < currentQuests.length && j < oldQuests.length) {
-		const currentQuestID = id(currentQuests[i]);
-		const oldQuestID = id(oldQuests[j]);
-		if (currentQuestID == oldQuestID) {
-			let questDiff = diff(oldQuests[j], currentQuests[i]) as QuestChange[];
-			if (questDiff.length !== 0) {
-				questDiff = questDiff.filter(
-					(change) =>
-						typeof change.path[0] !== "string" ||
-						!ignoreRootPaths.has(change.path[0]),
-				);
-				for (const handler of specialModifierHandlers) {
-					handler(oldQuests[j], currentQuests[i], questDiff);
+export function getChanged(current: Quest[], old: Quest[]): Changed {
+	const oldQuestsMap = new Map<number, Quest>(
+		old.map((quest) => [id(quest), quest]),
+	);
+
+	const currentQuestsMap = new Map<number, Quest>(
+		current.map((quest) => [id(quest), quest]),
+	);
+
+	const { modified, removed } = old.reduce(
+		(acc, oldQuest) => {
+			const questId = id(oldQuest);
+			const currentQuest = currentQuestsMap.get(questId);
+
+			if (!currentQuest) {
+				if (!data.currentIDsToQuests.has(questId)) {
+					logWarn(
+						`A quest has been removed directly! (ID ${questId}, Name '${name(
+							oldQuest,
+						)}') This is NOT recommended! IDs may overlay in the future! Replace quests with empty ones instead!`,
+					);
+					acc.removed.push(oldQuest);
 				}
-				if (isEmptyQuest(currentQuests[i])) changed.removed.push(oldQuests[j]);
-				else
-					changed.modified.push({
-						currentQuest: currentQuests[i],
-						oldQuest: oldQuests[j],
+				return acc;
+			}
+
+			const questDiff = getDifferences(oldQuest, currentQuest);
+			if (questDiff.length > 0) {
+				if (isEmptyQuest(currentQuest)) {
+					acc.removed.push(oldQuest);
+				} else {
+					acc.modified.push({
+						currentQuest,
+						oldQuest,
 						change: questDiff,
 					});
+				}
 			}
-			i++;
-			j++;
-			continue;
-		}
-		if (!data.currentIDsToQuests.has(oldQuestID)) {
-			logWarn(
-				`A quest has been removed directly! (ID ${id(oldQuests[j])}, Name '${name(
-					oldQuests[j],
-				)}') This is NOT recommended! IDs may overlay in the future! Replace quests with empty ones instead!`,
-			);
-			changed.removed.push(oldQuests[j]);
-			j++;
-			continue;
-		}
-		changed.added.push(currentQuests[i]);
-		i++;
-	}
-	if (i < currentQuests.length) {
-		changed.added.push(...currentQuests.slice(i));
-	} else if (j < currentQuests.length) {
-		changed.removed.push(...currentQuests.slice(i));
-	}
-	return changed;
+			return acc;
+		},
+		{ modified: [] as Modified[], removed: [] as Quest[] },
+	);
+
+	const added = current.filter((quest) => !oldQuestsMap.has(id(quest)));
+
+	return { added, modified, removed };
+}
+
+export function getDifferences(old: Quest, current: Quest): QuestChange[] {
+	const initialDiff = diff(old, current) as QuestChange[];
+
+	if (initialDiff.length === 0) return [];
+
+	const filteredDiff = initialDiff.filter(
+		(change) =>
+			typeof change.path[0] !== "string" ||
+			!ignoreRootPaths.has(change.path[0]),
+	);
+
+	// Apply special modifiers
+	specialModifierHandlers.forEach((handler) =>
+		handler(old, current, filteredDiff),
+	);
+
+	return filteredDiff;
 }
 
 export function isEmptyQuest(quest: Quest): boolean {
@@ -534,10 +541,19 @@ export function stringifyQB(qb: QuestBook): string {
 	qb = sortKeysRecursiveIgnoreArray(qb, (key1, key2): number => {
 		const defaultVal = key2 < key1 ? 1 : -1;
 
-		if (!key1.includes(":") || !key2.includes(":")) return defaultVal;
+		if (!key1.includes(":") || !key2.includes(":")) {
+			return defaultVal;
+		}
 
-		const num1 = Number.parseInt(key1.split(":")[0]);
-		const num2 = Number.parseInt(key2.split(":")[0]);
+		const id1 = key1.split(":")[0];
+		const id2 = key2.split(":")[0];
+
+		if (!id1 || !id2) {
+			return defaultVal;
+		}
+
+		const num1 = Number.parseInt(id1);
+		const num2 = Number.parseInt(id2);
 
 		if (Number.isNaN(num1) || Number.isNaN(num2)) return defaultVal;
 		return num1 - num2;

@@ -31,7 +31,7 @@ export async function fetchProject(
 	toFetch: number,
 ): Promise<CurseForgeProject> {
 	if (curseForgeProjectCache[toFetch]) {
-		return curseForgeProjectCache[toFetch];
+		return curseForgeProjectCache[toFetch]!;
 	}
 
 	const project: CurseForgeProject | undefined = (
@@ -62,7 +62,7 @@ export async function fetchFileInfo(
 	const slug = `${projectID}/${fileID}`;
 
 	if (fetchedFileInfoCache[slug]) {
-		return fetchedFileInfoCache[slug];
+		return fetchedFileInfoCache[slug]!;
 	}
 
 	const fileInfo: CurseForgeFileInfo = (

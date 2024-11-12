@@ -4,6 +4,7 @@
 		"module": "preserve",
 		"target": "es2022",
 		"strict": true,
+		"noUncheckedIndexedAccess": true,
 		"noImplicitOverride": true,
 		"noEmit": true,
 		"baseUrl": ".",

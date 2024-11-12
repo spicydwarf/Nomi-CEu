@@ -68,7 +68,7 @@ async function updateFilesSetup(): Promise<void> {
 				updateFileTransformedVersion = buildData.transformedVersion;
 				return;
 			}
-			updateFileVersion = versionList.split("\n")[0].replace("-", "").trim();
+			updateFileVersion = versionList.split("\n")[0]!.replace("-", "").trim();
 			updateFileTransformedVersion = `v${updateFileVersion}`;
 			return;
 		}

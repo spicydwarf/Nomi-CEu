@@ -100,45 +100,32 @@ export async function parseIgnore(
 		return undefined;
 	}
 
-	let infoKeys: string[];
-	try {
-		infoKeys = Object.keys(info.checks);
-	} catch (err) {
-		logError(dedent`
-			Could not get the keys in Ignore Info of body:
-			\`\`\`
-			${commitBody}\`\`\`
-			of commit object ${commitObject.hash} (${commitObject.message})!`);
-		if (data.isTest) throw err;
-		return undefined;
-	}
-
 	/* Find Checks */
-	const ignoreKeys = new Set<string>(Object.keys(ignoreChecks));
 	const checkResults: boolean[] = [];
-	infoKeys.forEach((key) => {
-		if (ignoreKeys.has(key))
-			checkResults.push(ignoreChecks[key](info.checks[key], data));
-		else {
+	for (const [key, check] of Object.entries(info.checks)) {
+		if (ignoreChecks[key]) {
+			checkResults.push(ignoreChecks[key]!(check, data));
+		} else {
 			logError(dedent`
 			Ignore Check with key '${key}' in body:
 			\`\`\`
 			${commitBody}\`\`\`
 			of commit object ${commitObject.hash} (${commitObject.message}) is not accepted!
-			Only accepts keys: ${Array.from(ignoreKeys)
+			Only accepts keys: ${Object.keys(ignoreChecks)
 				.map((key) => `'${key}'`)
 				.join(", ")}.`);
 			if (data.isTest)
 				throw new Error("Failed Parsing Ignore Check. See Above.");
 		}
-	});
+	}
+
 	if (checkResults.length === 0) {
 		logError(dedent`
 			No Ignore Checks found in body:
 			\`\`\`
 			${commitBody}\`\`\`
 			of commit object ${commitObject.hash} (${commitObject.message})!
-			Only accepts keys: ${Array.from(ignoreKeys)
+			Only accepts keys: ${Object.keys(ignoreChecks)
 				.map((key) => `'${key}'`)
 				.join(", ")}.`);
 		if (data.isTest)
@@ -149,9 +136,9 @@ export async function parseIgnore(
 	/* Find Logic */
 	let logic: IgnoreLogic;
 	if (info.logic === undefined) logic = defaultIgnoreLogic;
-	else if (Object.keys(ignoreLogics).includes(info.logic))
-		logic = ignoreLogics[info.logic];
-	else {
+	else if (ignoreLogics[info.logic]) {
+		logic = ignoreLogics[info.logic]!;
+	} else {
 		logError(dedent`
 			Ignore Logic '${info.logic}' in body:
 			\`\`\`
@@ -596,8 +583,7 @@ async function parseList<T>(
 	perItemCallback: (item: T) => Promise<void>,
 	entryModifier?: (index: number) => number,
 ) {
-	for (let i = 0; i < messages.length; i++) {
-		const item = messages[i];
+	for (const [i, item] of messages.entries()) {
 		if (emptyCheck(item)) {
 			let index = i + 1;
 			if (entryModifier) index = entryModifier(i);
@@ -685,7 +671,7 @@ async function parseTOMLWithRootToList<T>(
 
 	// No List
 	if (!(listKey in root)) {
-		if (messages.length > 0) {
+		if (messages.length > 0 && messages[0]) {
 			await perItemCallback(messages[0]);
 			return;
 		}

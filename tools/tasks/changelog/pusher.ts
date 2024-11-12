@@ -283,7 +283,7 @@ export async function formatMessage(
 	}
 
 	if (commits.length === 1) {
-		const commit = commits[0];
+		const commit = commits[0]!;
 		const shortSHA = commit.hash.substring(0, 7);
 		const formattedCommit = `[\`${shortSHA}\`](${repoLink}commit/${commit.hash})`;
 		const author = await formatAuthor(commit);
@@ -374,8 +374,7 @@ async function formatCommit(commit: Commit): Promise<string> {
  */
 async function transformAllIssueURLs(changelog: string[]) {
 	const promises: Promise<string>[] = [];
-	for (let i = 0; i < changelog.length; i++) {
-		const categoryFormatted = changelog[i];
+	for (const [i, categoryFormatted] of changelog.entries()) {
 		// Transform PR and/or Issue tags into a link.
 		promises.push(
 			transformTags(categoryFormatted).then(

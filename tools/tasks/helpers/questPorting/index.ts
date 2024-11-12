@@ -1,7 +1,7 @@
 import fs from "fs";
 import upath from "upath";
 import { rootDirectory } from "#globals";
-import type { Quest, QuestBook, QuestLine } from "#types/bqQuestBook.ts";
+import type { Quest, QuestBook } from "#types/bqQuestBook.ts";
 import { getFileAtRevision, git } from "#utils/util.ts";
 import { getChanged, id, save, setupUtils } from "../actionQBUtils.ts";
 import PortQBData from "./portQBData.ts";
@@ -99,11 +99,10 @@ export default async function portQBChanges(): Promise<void> {
 
 	// Save Quest Lines, if Changed
 	if (data.questLines) {
-		const obj = {} as { [key: string]: QuestLine };
-		for (let i = 0; i < data.questLines.length; i++) {
-			obj[`${i}:10`] = data.questLines[i];
+		toChange["questLines:9"] = {};
+		for (const [i, line] of data.questLines.entries()) {
+			toChange["questLines:9"][`${i}:10`] = line;
 		}
-		toChange["questLines:9"] = obj;
 	}
 
 	return save(toChange);
