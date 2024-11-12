@@ -46,7 +46,6 @@
 		"glob-parent": "^6.0.2",
 		"gray-matter": "^4.0.3",
 		"hash-wasm": "^4.11.0",
-		"javascript-stringify": "^2.1.0",
 		"just-diff": "^6.0.2",
 		"lodash": "^4.17.21",
 		"marked": "^12.0.2",

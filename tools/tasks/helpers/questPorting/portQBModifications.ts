@@ -3,7 +3,6 @@ import colors from "colors";
 import dedent from "dedent-js";
 import DiffMatchPatch from "diff-match-patch";
 import fakeDiff from "fake-diff";
-import { stringify } from "javascript-stringify";
 import type { Operation } from "just-diff";
 import lodash from "lodash";
 import picomatch from "picomatch";
@@ -307,12 +306,14 @@ const modifyIcon = async (
 	const currentIcon =
 		questToModify["properties:10"]["betterquesting:10"]["icon:10"];
 
-	const newIconString = stringify(newIcon, null, 2) ?? "";
+	const newIconString = JSON.stringify(newIcon, null, 2) ?? "";
 
 	logInfo(colors.bold("Change in Source Quest:"));
-	console.log(fakeDiff(stringify(oldIcon, null, 2) ?? "", newIconString));
+	console.log(fakeDiff(JSON.stringify(oldIcon, null, 2) ?? "", newIconString));
 	logInfo(colors.bold("If Applied to Current Quest:"));
-	console.log(fakeDiff(stringify(currentIcon, null, 2) ?? "", newIconString));
+	console.log(
+		fakeDiff(JSON.stringify(currentIcon, null, 2) ?? "", newIconString),
+	);
 
 	if (!(await booleanSelect("Should we Apply This Icon Change?"))) {
 		logNotImportant("Skipping...");
@@ -343,8 +344,8 @@ const modifyTasks = async (
 		logInfo(colors.bold("Change:"));
 		console.log(
 			fakeDiff(
-				stringify(Object.values(currentTasks), null, 2) ?? "",
-				stringify(Object.values(oldTasks), null, 2) ?? "",
+				JSON.stringify(Object.values(currentTasks), null, 2) ?? "",
+				JSON.stringify(Object.values(oldTasks), null, 2) ?? "",
 			),
 		);
 
@@ -471,8 +472,8 @@ const modifyTasks = async (
 			logInfo(colors.bold("Change:"));
 			console.log(
 				fakeDiff(
-					stringify(task, null, 2) ?? "",
-					stringify(newTask, null, 2) ?? "",
+					JSON.stringify(task, null, 2) ?? "",
+					JSON.stringify(newTask, null, 2) ?? "",
 				),
 			);
 			if (!(await booleanSelect("Should we Apply this Change?"))) {
@@ -524,8 +525,8 @@ const modifyTasks = async (
 			logInfo(colors.bold("Difference:"));
 			console.log(
 				fakeDiff(
-					stringify(oldTask, null, 2) ?? "",
-					stringify(task, null, 2) ?? "",
+					JSON.stringify(oldTask, null, 2) ?? "",
+					JSON.stringify(task, null, 2) ?? "",
 				),
 			);
 
@@ -560,9 +561,9 @@ const modifyTasks = async (
 		}
 		if (cancelled) continue;
 
-		const oldTaskString = stringify(oldTask, null, 2) ?? "";
-		const newTaskString = stringify(newTask, null, 2) ?? "";
-		const currentTaskString = stringify(confirmedTask, null, 2) ?? "";
+		const oldTaskString = JSON.stringify(oldTask, null, 2) ?? "";
+		const newTaskString = JSON.stringify(newTask, null, 2) ?? "";
+		const currentTaskString = JSON.stringify(confirmedTask, null, 2) ?? "";
 
 		logInfo(colors.bold("Change in Source Quest:"));
 		console.log(fakeDiff(oldTaskString, newTaskString));
@@ -767,19 +768,19 @@ const modifyGeneral = async (
 	logInfo(`Change in '${path.pop()}':`);
 
 	const newValue = lodash.get(modify.currentQuest, change.path);
-	const newValueAsString = stringify(newValue) ?? "";
+	const newValueAsString = JSON.stringify(newValue) ?? "";
 
 	logInfo(colors.bold("Change in Source Quest:"));
 	console.log(
 		fakeDiff(
-			stringify(lodash.get(modify.oldQuest, change.path)) ?? "",
+			JSON.stringify(lodash.get(modify.oldQuest, change.path)) ?? "",
 			newValueAsString,
 		),
 	);
 	logInfo(colors.bold("Change if Applied:"));
 	console.log(
 		fakeDiff(
-			stringify(lodash.get(questToModify, change.path)) ?? "",
+			JSON.stringify(lodash.get(questToModify, change.path)) ?? "",
 			newValueAsString,
 		),
 	);
