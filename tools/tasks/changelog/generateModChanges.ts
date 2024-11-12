@@ -1,3 +1,16 @@
+import dedent from "dedent-js";
+import mustache from "mustache";
+import type {
+	ChangelogMessage,
+	Commit,
+	ModChangeInfo,
+} from "#types/changelogTypes.ts";
+import type { SpecialChangelogFormatting } from "#types/changelogTypes.ts";
+import type {
+	ModpackManifest,
+	ModpackManifestFile,
+} from "#types/modpackManifest.ts";
+import { logError } from "#utils/log.ts";
 import {
 	type ArrayUnique,
 	cleanupVersion,
@@ -6,22 +19,9 @@ import {
 	getFileAtRevision,
 	getUniqueToArray,
 } from "#utils/util.ts";
-import type {
-	ModpackManifest,
-	ModpackManifestFile,
-} from "#types/modpackManifest.ts";
-import type {
-	ChangelogMessage,
-	Commit,
-	ModChangeInfo,
-} from "#types/changelogTypes.ts";
-import dedent from "dedent-js";
-import mustache from "mustache";
+import type ChangelogData from "./changelogData.ts";
 import { modChangesAllocations } from "./definitions.ts";
-import ChangelogData from "./changelogData.ts";
-import type { SpecialChangelogFormatting } from "#types/changelogTypes.ts";
 import { formatMessage, sortCommitListReverse } from "./pusher.ts";
-import { logError } from "#utils/log.ts";
 
 /**
  * Mod Changes special formatting
@@ -83,7 +83,7 @@ export default async function generateModChanges(
 			list: comparisonResult.removed,
 		},
 	].forEach((block) => {
-		if (block.list.length == 0) {
+		if (block.list.length === 0) {
 			return;
 		}
 		const list = block.list

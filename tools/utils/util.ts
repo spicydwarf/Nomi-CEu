@@ -1,28 +1,9 @@
-import { sha1 } from "hash-wasm";
-import type { FileDef } from "#types/fileDef.ts";
-import fs from "fs";
-import buildConfig from "#buildConfig";
-import upath from "upath";
-import { compareBufferToHashDef } from "./hashes.ts";
 import { execSync } from "child_process";
-import type {
-	ExternalDependency,
-	ModpackManifest,
-	ModpackManifestFile,
-} from "#types/modpackManifest.ts";
-import {
-	fetchFileInfo,
-	fetchProject,
-	fetchProjectsBulk,
-} from "./curseForgeAPI.ts";
-import type { VersionManifest } from "#types/versionManifest.ts";
-import type { VersionsManifest } from "#types/versionsManifest.ts";
-import { pathspec, type SimpleGit, simpleGit } from "simple-git";
-import { type Commit, type ModChangeInfo } from "#types/changelogTypes.ts";
-import { modpackManifest, repoName, repoOwner, rootDirectory } from "#globals";
+import fs from "fs";
+import stream from "node:stream";
+import { retry } from "@octokit/plugin-retry";
+import { throttling } from "@octokit/plugin-throttling";
 import { Octokit } from "@octokit/rest";
-import logInfo, { logError, logWarn } from "./log.ts";
-import lodash from "lodash";
 import axios, {
 	AxiosError,
 	type AxiosInstance,
@@ -36,11 +17,30 @@ import axiosRetry, {
 	type IAxiosRetryConfigExtended,
 	namespace,
 } from "axios-retry";
-import stream from "node:stream";
+import { sha1 } from "hash-wasm";
+import lodash from "lodash";
+import { type SimpleGit, pathspec, simpleGit } from "simple-git";
+import upath from "upath";
+import buildConfig from "#buildConfig";
+import { modpackManifest, repoName, repoOwner, rootDirectory } from "#globals";
 import type { NomiConfig } from "#types/axios.ts";
+import type { Commit, ModChangeInfo } from "#types/changelogTypes.ts";
+import type { FileDef } from "#types/fileDef.ts";
+import type {
+	ExternalDependency,
+	ModpackManifest,
+	ModpackManifestFile,
+} from "#types/modpackManifest.ts";
 import { BuildData } from "#types/transformFiles.js";
-import { retry } from "@octokit/plugin-retry";
-import { throttling } from "@octokit/plugin-throttling";
+import type { VersionManifest } from "#types/versionManifest.ts";
+import type { VersionsManifest } from "#types/versionsManifest.ts";
+import {
+	fetchFileInfo,
+	fetchProject,
+	fetchProjectsBulk,
+} from "./curseForgeAPI.ts";
+import { compareBufferToHashDef } from "./hashes.ts";
+import logInfo, { logError, logWarn } from "./log.ts";
 
 const LIBRARY_REG = /^(.+?):(.+?):(.+?)$/;
 
@@ -191,8 +191,8 @@ export const checkGitTag = (tag: string): void => {
 };
 
 export enum RetrievedFileDefReason {
-	Downloaded,
-	CacheHit,
+	Downloaded = 0,
+	CacheHit = 1,
 }
 
 export interface RetrievedFileDef {
@@ -430,7 +430,7 @@ export async function getFileAtRevision(
 	path: string,
 	revision = "HEAD",
 ): Promise<string> {
-	let output: string = "";
+	let output = "";
 	await git.show(`${revision}:./${path}`, (err, file) => {
 		if (err) {
 			logError(err.toString());

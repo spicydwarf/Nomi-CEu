@@ -1,19 +1,19 @@
+import fs from "fs";
+import upath from "upath";
+import buildConfig from "#buildConfig";
 import type {
 	CurseForgeFileInfo,
 	CurseForgeModInfo,
 	CurseForgeModInfo as CurseForgeProject,
 } from "#types/curseForge.ts";
-import type { ModpackManifestFile } from "#types/modpackManifest.ts";
-import buildConfig from "#buildConfig";
-import upath from "upath";
-import fs from "fs";
 import type { FileDef } from "#types/fileDef.ts";
+import type { ModpackManifestFile } from "#types/modpackManifest.ts";
+import logInfo, { logError, logWarn } from "./log.ts";
 import {
+	RetrievedFileDefReason,
 	downloadOrRetrieveFileDef,
 	getAxios,
-	RetrievedFileDefReason,
 } from "./util.ts";
-import logInfo, { logError, logWarn } from "./log.ts";
 
 function getCurseForgeToken() {
 	const vari = "CFCORE_API_TOKEN";

@@ -1,17 +1,17 @@
+import { modpackManifest } from "#globals";
+import type {
+	CurseForgeFileInfo,
+	CurseForgeModInfo,
+} from "#types/curseForge.ts";
+import type { ModpackManifest } from "#types/modpackManifest.ts";
 import {
 	fetchFileInfo,
 	fetchFilesBulk,
 	fetchProject,
 	fetchProjectsBulk,
 } from "#utils/curseForgeAPI.ts";
-import { modpackManifest } from "#globals";
-import { checkGitTag, getFileAtRevision } from "#utils/util.ts";
-import type { ModpackManifest } from "#types/modpackManifest.ts";
-import type {
-	CurseForgeFileInfo,
-	CurseForgeModInfo,
-} from "#types/curseForge.ts";
 import logInfo from "#utils/log.ts";
+import { checkGitTag, getFileAtRevision } from "#utils/util.ts";
 
 export interface ModFileInfo {
 	modInfo: CurseForgeModInfo;

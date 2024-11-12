@@ -1,14 +1,14 @@
+import { modpackManifest } from "#globals";
 import type {
 	Category,
 	Commit,
 	FixUpInfo,
 	IgnoreCheck,
-	Ignored,
 	IgnoreLogic,
+	Ignored,
 	Parser,
 	SubCategory,
 } from "#types/changelogTypes.ts";
-import { modpackManifest } from "#globals";
 import { parseCommitBody } from "./parser.ts";
 import { parseFixUp } from "./specialParser.ts";
 

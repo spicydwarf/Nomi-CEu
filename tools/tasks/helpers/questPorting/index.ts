@@ -2,6 +2,7 @@ import fs from "fs";
 import upath from "upath";
 import { rootDirectory } from "#globals";
 import type { Quest, QuestBook } from "#types/bqQuestBook.ts";
+import logInfo, { logError, logNotImportant } from "#utils/log.ts";
 import { getFileAtRevision, git } from "#utils/util.ts";
 import { getChanged, id, save, setupUtils } from "../actionQBUtils.ts";
 import PortQBData from "./portQBData.ts";
@@ -12,7 +13,6 @@ import {
 	setupLogic,
 } from "./portQBLogic.ts";
 import { setupModifications } from "./portQBModifications.ts";
-import logInfo, { logError, logNotImportant } from "#utils/log.ts";
 
 let data: PortQBData;
 

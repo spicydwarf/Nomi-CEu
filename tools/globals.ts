@@ -1,7 +1,7 @@
-import buildConfig from "#buildConfig";
 import upath from "upath";
-import manifest from "./../manifest.json" with { type: "json" };
+import buildConfig from "#buildConfig";
 import type { ModpackManifest } from "#types/modpackManifest.ts";
+import manifest from "./../manifest.json" with { type: "json" };
 
 export const sharedDestDirectory = upath.join(
 	buildConfig.buildDestinationDirectory,

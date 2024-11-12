@@ -6,6 +6,8 @@ import {
 	type Parser,
 	type SubCategory,
 } from "#types/changelogTypes.ts";
+import { getChangelog } from "#utils/util.ts";
+import type ChangelogData from "./changelogData.ts";
 import {
 	categories,
 	coAuthorsKey,
@@ -27,8 +29,6 @@ import {
 	parseModInfo,
 	parsePriority,
 } from "./specialParser.ts";
-import { getChangelog } from "#utils/util.ts";
-import ChangelogData from "./changelogData.ts";
 
 export default async function parseParser(
 	data: ChangelogData,

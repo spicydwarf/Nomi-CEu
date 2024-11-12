@@ -1,19 +1,22 @@
+import dedent from "dedent-js";
+import matter, { type GrayMatterFile } from "gray-matter";
+import toml from "toml-v1";
 import {
 	type AuthorInfo,
 	type ChangelogMessage,
 	type Commit,
 	type ExpandedMessage,
 	type FixUpInfo,
-	Ignored,
 	type IgnoreInfo,
 	type IgnoreLogic,
+	Ignored,
 	type ModInfo,
 	type ParsedModInfo,
 	type Parser,
 	type PriorityInfo,
 } from "#types/changelogTypes.ts";
-import dedent from "dedent-js";
-import matter, { type GrayMatterFile } from "gray-matter";
+import { logError } from "#utils/log.ts";
+import type ChangelogData from "./changelogData.ts";
 import {
 	coAuthorsKey,
 	coAuthorsList,
@@ -37,9 +40,6 @@ import {
 	priorityKey,
 } from "./definitions.ts";
 import { findCategories, findSubCategory } from "./parser.ts";
-import ChangelogData from "./changelogData.ts";
-import toml from "toml-v1";
-import { logError } from "#utils/log.ts";
 
 const { parse } = toml;
 let data: ChangelogData;

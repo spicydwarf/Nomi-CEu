@@ -1,21 +1,21 @@
 import fs from "fs";
-import { rootDirectory } from "#globals";
-import upath from "upath";
 import { marked } from "marked";
+import upath from "upath";
 import buildConfig from "#buildConfig";
+import { rootDirectory } from "#globals";
+import logInfo from "#utils/log.ts";
 import { categoriesSetup } from "./categoryManagement.ts";
 import ChangelogData from "./changelogData.ts";
 import { changelogParsers } from "./definitions.ts";
-import parseParser from "./parser.ts";
-import { specialParserSetup } from "./specialParser.ts";
 import generateModChanges from "./generateModChanges.ts";
+import parseParser from "./parser.ts";
 import pushAll, {
 	pushChangelog,
 	pushSeperator,
 	pushSetup,
 	pushTitle,
 } from "./pusher.ts";
-import logInfo from "#utils/log.ts";
+import { specialParserSetup } from "./specialParser.ts";
 
 /**
  * Generates a changelog based on environmental variables, and saves it a changelog data class.

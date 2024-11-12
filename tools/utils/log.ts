@@ -1,5 +1,5 @@
-import logger from "fancy-log";
 import colors from "colors";
+import logger from "fancy-log";
 
 export function logNotImportant(message: string): void {
 	logger.info(colors.dim(message));

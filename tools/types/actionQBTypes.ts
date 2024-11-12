@@ -1,6 +1,6 @@
-import type { Quest } from "./bqQuestBook.ts";
 import type { Operation } from "just-diff";
 import type { Matcher } from "picomatch";
+import type { Quest } from "./bqQuestBook.ts";
 
 // QB Porting From.
 export type PortingType = "NORMAL" | "EXPERT";

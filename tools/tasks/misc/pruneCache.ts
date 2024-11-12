@@ -1,13 +1,13 @@
-import { modpackManifest } from "#globals";
-import { FORGE_MAVEN, getForgeJar, getVersionManifest } from "#utils/util.ts";
-import unzip from "unzipper";
-import type { ForgeProfile } from "#types/forgeProfile.ts";
-import { sha1 } from "hash-wasm";
-import { fetchFileInfo } from "#utils/curseForgeAPI.ts";
 import fs from "fs";
+import { sha1 } from "hash-wasm";
+import unzip from "unzipper";
 import upath from "upath";
 import buildConfig from "#buildConfig";
+import { modpackManifest } from "#globals";
+import type { ForgeProfile } from "#types/forgeProfile.ts";
+import { fetchFileInfo } from "#utils/curseForgeAPI.ts";
 import logInfo from "#utils/log.ts";
+import { FORGE_MAVEN, getForgeJar, getVersionManifest } from "#utils/util.ts";
 
 /**
  * Download the Forge jar.

@@ -1,13 +1,13 @@
 import fs from "fs";
+import dedent from "dedent-js";
+import gulp from "gulp";
+import mustache from "mustache";
+import sortKeysRecursive from "sort-keys-recursive";
 import upath from "upath";
 import { configFolder, rootDirectory, templatesFolder } from "#globals";
-import mustache from "mustache";
-import gulp from "gulp";
-import dedent from "dedent-js";
-import { isEnvVariableSet } from "#utils/util.ts";
 import { BuildData } from "#types/transformFiles.ts";
 import { logWarn } from "#utils/log.ts";
-import sortKeysRecursive from "sort-keys-recursive";
+import { isEnvVariableSet } from "#utils/util.ts";
 
 // This updates all the files, for a release.
 

@@ -1,4 +1,5 @@
-import PortQBData from "./portQBData.ts";
+import type { Quest } from "#types/bqQuestBook.ts";
+import logInfo, { logNotImportant } from "../../../utils/log.ts";
 import {
 	booleanSelect,
 	dependencies,
@@ -8,9 +9,8 @@ import {
 	name,
 	stripRewards,
 } from "../actionQBUtils.ts";
-import type { Quest } from "#types/bqQuestBook.ts";
+import type PortQBData from "./portQBData.ts";
 import { performModification } from "./portQBModifications.ts";
-import logInfo, { logNotImportant } from "../../../utils/log.ts";
 
 let data: PortQBData;
 

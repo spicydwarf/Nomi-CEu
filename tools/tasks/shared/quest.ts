@@ -1,9 +1,9 @@
 import fs from "fs";
 import upath from "upath";
 import {
-	overridesFolder,
 	configFolder,
 	configOverridesFolder,
+	overridesFolder,
 	sharedDestDirectory,
 } from "#globals";
 import type { Quest, QuestBook, QuestLine } from "#types/bqQuestBook.ts";

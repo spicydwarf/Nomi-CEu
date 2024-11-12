@@ -14,12 +14,12 @@ export const updateFilesAll = transformFiles.updateAll;
 import * as changelog from "./tasks/changelog/index.ts";
 export const createChangelog = changelog.createRootChangelog;
 
-import * as sharedTasks from "./tasks/shared/index.ts";
 import clientTasks from "./tasks/client/index.ts";
-import serverTasks from "./tasks/server/index.ts";
 import langTasks from "./tasks/lang/index.ts";
-import mmcTasks from "./tasks/mmc/index.ts";
 import * as modTasks from "./tasks/misc/downloadMods.ts";
+import mmcTasks from "./tasks/mmc/index.ts";
+import serverTasks from "./tasks/server/index.ts";
+import * as sharedTasks from "./tasks/shared/index.ts";
 
 export const buildClient = gulp.series(sharedTasks.default, clientTasks);
 export const buildServer = gulp.series(

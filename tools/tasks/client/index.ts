@@ -1,20 +1,20 @@
-import { src, dest, series } from "gulp";
+import fs from "fs";
+import dedent from "dedent-js";
+import { deleteAsync } from "del";
+import { dest, series, src } from "gulp";
+import upath from "upath";
+import buildConfig from "#buildConfig";
 import {
 	clientDestDirectory,
 	modpackManifest,
 	sharedDestDirectory,
 } from "#globals";
-import fs from "fs";
-import upath from "upath";
-import buildConfig from "#buildConfig";
-import { deleteAsync } from "del";
-import { createModList, type ModFileInfo } from "../misc/createModList.ts";
-import dedent from "dedent-js";
 import {
 	cleanupVersion,
 	promiseStream,
 	shouldSkipChangelog,
 } from "#utils/util.ts";
+import { type ModFileInfo, createModList } from "../misc/createModList.ts";
 
 async function clientCleanUp() {
 	return deleteAsync(upath.join(clientDestDirectory, "*"), { force: true });

@@ -1,9 +1,9 @@
-import { modDestDirectory, modpackManifest } from "#globals";
-import { fetchMods } from "#utils/curseForgeAPI.ts";
-import upath from "upath";
 import fs from "fs";
 import { deleteAsync } from "del";
 import { parallel, series } from "gulp";
+import upath from "upath";
+import { modDestDirectory, modpackManifest } from "#globals";
+import { fetchMods } from "#utils/curseForgeAPI.ts";
 import logInfo from "#utils/log.ts";
 
 async function modCleanUp() {

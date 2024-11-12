@@ -1,18 +1,18 @@
-import ChangelogData from "./changelogData.ts";
-import { categories, defaultIndentation } from "./definitions.ts";
 import type {
 	Category,
 	ChangelogMessage,
 	Commit,
 } from "#types/changelogTypes.ts";
-import { repoLink } from "./definitions.ts";
+import logInfo from "#utils/log.ts";
 import {
 	formatAuthor,
-	getIssueURL,
 	getCommitAuthors,
+	getIssueURL,
 	getIssueURLs,
 } from "#utils/util.ts";
-import logInfo from "#utils/log.ts";
+import type ChangelogData from "./changelogData.ts";
+import { categories, defaultIndentation } from "./definitions.ts";
+import { repoLink } from "./definitions.ts";
 
 let data: ChangelogData;
 
@@ -346,7 +346,7 @@ export async function formatMessage(
 
 	// Delete all Formatted Commits after MaxIncludeCommits elements, replace with '...'
 	if (formattedCommits.length > maxIncludeCommits) {
-		formattedCommits.splice(maxIncludeCommits, Infinity, "...");
+		formattedCommits.splice(maxIncludeCommits, Number.POSITIVE_INFINITY, "...");
 	}
 
 	return `${indentation}* ${message} - ${authors.join(", ")} (${formattedCommits.join(", ")})`;

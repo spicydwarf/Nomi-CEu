@@ -1,29 +1,29 @@
-import type { Quest, QuestBook, QuestVisibility } from "#types/bqQuestBook.ts";
-import { diff } from "just-diff";
-import type {
-	Changed,
-	YesIgnoreNo,
-	QuestChange,
-	Replacements,
-	SavedPorter,
-	SpecialModifierHandler,
-	Modified,
-} from "#types/actionQBTypes.ts";
-import upath from "upath";
 import fs from "fs";
-import PortQBData from "./questPorting/portQBData.ts";
 import { input, select } from "@inquirer/prompts";
+import colors from "colors";
+import { diff } from "just-diff";
+import lodash from "lodash";
+import sortKeys from "sort-keys";
+import upath from "upath";
 import {
 	configFolder,
 	configOverridesFolder,
 	rootDirectory,
 	storageFolder,
 } from "#globals";
+import type {
+	Changed,
+	Modified,
+	QuestChange,
+	Replacements,
+	SavedPorter,
+	SpecialModifierHandler,
+	YesIgnoreNo,
+} from "#types/actionQBTypes.ts";
+import type { Quest, QuestBook, QuestVisibility } from "#types/bqQuestBook.ts";
 import logInfo, { logError, logWarn } from "#utils/log.ts";
-import colors from "colors";
 import { getUniqueToArray } from "#utils/util.ts";
-import sortKeys from "sort-keys";
-import lodash from "lodash";
+import type PortQBData from "./questPorting/portQBData.ts";
 
 let data: PortQBData;
 
@@ -243,12 +243,12 @@ export async function findQuest(
 	let foundBySpecificID: YesIgnoreNo = "NO";
 	let questBySpecificID: Quest | undefined = undefined;
 	while (foundBySpecificID === "NO") {
-		const specID = parseInt(
+		const specID = Number.parseInt(
 			await input({
 				message:
 					"Please Provide a Specific Quest ID to be used as the Corresponding Quest. Enter -1 to Skip/Cancel this Quest!",
 				validate: (value) => {
-					const numValue = parseInt(value);
+					const numValue = Number.parseInt(value);
 					if (numValue === -1) return true; // Allow Cancelling
 					if (isNaN(numValue) || numValue < 0) {
 						return "Please Enter a Number Value >= 0!";
@@ -579,7 +579,7 @@ function sortKeysRecursiveIgnoreArray<T extends object>(
 	const result = sortKeys(object as Record<string, unknown>, { compare }) as T;
 
 	// We can modify results, Object.Keys returns a static array
-	Object.keys(result).forEach(function (key) {
+	Object.keys(result).forEach((key) => {
 		const current = lodash.get(result, key);
 		if (current) {
 			if (typeof current === "object") {

@@ -1,12 +1,20 @@
-import upath from "upath";
-import unzip from "unzipper";
-import through from "through2";
-import mustache from "mustache";
-import { src, dest, series } from "gulp";
 import fs from "fs";
+import { deleteAsync } from "del";
+import { dest, series, src } from "gulp";
+import mustache from "mustache";
+import through from "through2";
+import unzip from "unzipper";
+import upath from "upath";
 import buildConfig from "#buildConfig";
-import type { ForgeProfile } from "#types/forgeProfile.ts";
+import {
+	modDestDirectory,
+	modpackManifest,
+	serverDestDirectory,
+	sharedDestDirectory,
+} from "#globals";
 import type { FileDef } from "#types/fileDef.ts";
+import type { ForgeProfile } from "#types/forgeProfile.ts";
+import logInfo, { logWarn } from "#utils/log.ts";
 import {
 	downloadOrRetrieveFileDef,
 	getForgeJar,
@@ -14,14 +22,6 @@ import {
 	promiseStream,
 	shouldSkipChangelog,
 } from "#utils/util.ts";
-import {
-	modDestDirectory,
-	modpackManifest,
-	serverDestDirectory,
-	sharedDestDirectory,
-} from "#globals";
-import { deleteAsync } from "del";
-import logInfo, { logWarn } from "#utils/log.ts";
 
 let g_forgeJar: string | undefined = undefined;
 

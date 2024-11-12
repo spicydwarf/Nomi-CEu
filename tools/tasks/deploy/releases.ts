@@ -1,16 +1,16 @@
 import { modpackManifest } from "#globals";
 
 import fs from "fs";
+import mustache from "mustache";
+import sanitize from "sanitize-filename";
 import upath from "upath";
 import buildConfig from "#buildConfig";
-import { makeArtifactNameBody, octokit } from "#utils/util.ts";
-import sanitize from "sanitize-filename";
-import mustache from "mustache";
 import {
 	type DeployReleaseType,
 	type InputReleaseType,
 	inputToDeployReleaseTypes,
 } from "#types/changelogTypes.ts";
+import { makeArtifactNameBody, octokit } from "#utils/util.ts";
 
 const variablesToCheck = [
 	"GITHUB_TAG",

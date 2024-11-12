@@ -1,5 +1,10 @@
-import type { QuestBook } from "#types/bqQuestBook.ts";
 import fs from "fs";
+import * as core from "@actions/core";
+import { input, select } from "@inquirer/prompts";
+import colors from "colors";
+import lodash from "lodash";
+import upath from "upath";
+import { rootDirectory } from "#globals";
 import {
 	cfgExpertPath,
 	cfgNormalPath,
@@ -11,15 +16,10 @@ import {
 	stringifyQB,
 	stripRewards,
 } from "#tasks/helpers/actionQBUtils.ts";
-import { input, select } from "@inquirer/prompts";
 import type { SourceOption } from "#types/actionQBTypes.ts";
+import type { QuestBook } from "#types/bqQuestBook.ts";
 import logInfo, { logWarn } from "#utils/log.ts";
-import upath from "upath";
-import { rootDirectory } from "#globals";
-import colors from "colors";
 import { isEnvVariableSet } from "#utils/util.ts";
-import * as core from "@actions/core";
-import lodash from "lodash";
 
 const isAvailableForFormatting = /[0-9a-ek-or]/;
 
@@ -262,7 +262,7 @@ async function checkAndFixQB(
 			: [...quest["preRequisites:11"]]; // Copy if Changing
 
 		let rightOrder = true;
-		let prev: number = -1; // Smallest ID is 0
+		let prev = -1; // Smallest ID is 0
 		for (const [i, pre] of oldPrerequisites.entries()) {
 			if (prev < pre) {
 				prev = pre;
@@ -401,7 +401,7 @@ function stripOrThrowExcessFormatting(
 	if (!value.includes("§")) return value;
 
 	let builder: string[] = [];
-	let emptyAmt: number = 0;
+	let emptyAmt = 0;
 
 	for (let i = 0; i < value.length; i++) {
 		const char = value.charAt(i);

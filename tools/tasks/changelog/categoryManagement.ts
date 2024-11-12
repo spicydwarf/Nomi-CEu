@@ -1,9 +1,9 @@
-import { categories } from "./definitions.ts";
 import type {
 	Category,
 	ChangelogMessage,
 	SubCategory,
 } from "#types/changelogTypes.ts";
+import { categories } from "./definitions.ts";
 
 export function categoriesSetup(): void {
 	// Initialize Category Lists

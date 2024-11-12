@@ -1,25 +1,25 @@
 import { modpackManifest } from "#globals";
 
 import fs from "fs";
+import * as core from "@actions/core";
+import type { AxiosRequestConfig } from "axios";
+import { filesize } from "filesize";
+import mustache from "mustache";
+import sanitize from "sanitize-filename";
 import upath from "upath";
 import buildConfig from "#buildConfig";
-import {
-	getAxios,
-	isEnvVariableSet,
-	makeArtifactNameBody,
-} from "#utils/util.ts";
-import sanitize from "sanitize-filename";
-import mustache from "mustache";
 import {
 	type DeployReleaseType,
 	type InputReleaseType,
 	inputToDeployReleaseTypes,
 } from "#types/changelogTypes.ts";
-import logInfo from "#utils/log.ts";
 import type { CurseForgeLegacyMCVersion } from "#types/curseForge.ts";
-import * as core from "@actions/core";
-import type { AxiosRequestConfig } from "axios";
-import { filesize } from "filesize";
+import logInfo from "#utils/log.ts";
+import {
+	getAxios,
+	isEnvVariableSet,
+	makeArtifactNameBody,
+} from "#utils/util.ts";
 
 const CURSEFORGE_LEGACY_ENDPOINT = "https://minecraft.curseforge.com/";
 const variablesToCheck = [

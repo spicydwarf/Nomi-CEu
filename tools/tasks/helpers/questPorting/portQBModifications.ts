@@ -1,3 +1,12 @@
+import { editor, input, select } from "@inquirer/prompts";
+import colors from "colors";
+import dedent from "dedent-js";
+import DiffMatchPatch from "diff-match-patch";
+import fakeDiff from "fake-diff";
+import { stringify } from "javascript-stringify";
+import type { Operation } from "just-diff";
+import lodash from "lodash";
+import picomatch from "picomatch";
 import {
 	type BunchedParserPath,
 	type ChangeAndPath,
@@ -12,20 +21,11 @@ import {
 	type TaskDifferentSolution,
 	type YesIgnoreNo,
 } from "#types/actionQBTypes.ts";
-import PortQBData from "./portQBData.ts";
-import DiffMatchPatch from "diff-match-patch";
-import picomatch from "picomatch";
-import { booleanSelect, findQuest, id, name } from "../actionQBUtils.ts";
-import fakeDiff from "fake-diff";
-import type { Operation } from "just-diff";
-import logInfo, { logError, logNotImportant, logWarn } from "#utils/log.ts";
-import dedent from "dedent-js";
-import { editor, input, select } from "@inquirer/prompts";
-import colors from "colors";
-import { stringify } from "javascript-stringify";
 import type { Quest, Task } from "#types/bqQuestBook.ts";
+import logInfo, { logError, logNotImportant, logWarn } from "#utils/log.ts";
 import type { ArrayUnique } from "#utils/util.ts";
-import lodash from "lodash";
+import { booleanSelect, findQuest, id, name } from "../actionQBUtils.ts";
+import type PortQBData from "./portQBData.ts";
 
 let data: PortQBData;
 const dmp = new DiffMatchPatch();
@@ -335,7 +335,7 @@ const modifyTasks = async (
 	const newTasks = modify.currentQuest["tasks:9"];
 	const currentTasks = questToModify["tasks:9"];
 
-	let same: boolean = true;
+	let same = true;
 
 	let toModify: Map<number, Task>;
 	if (!lodash.isEqual(oldTasks, currentTasks)) {
@@ -484,7 +484,7 @@ const modifyTasks = async (
 		}
 
 		let confirmedTask: Task | undefined = undefined;
-		let cancelled: boolean = false;
+		let cancelled = false;
 		while (!confirmedTask) {
 			if (!task) {
 				const retrievedIndex = Number.parseInt(

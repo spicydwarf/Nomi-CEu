@@ -1,3 +1,5 @@
+import fs from "fs";
+import { deleteAsync } from "del";
 import { dest, series, src } from "gulp";
 import upath from "upath";
 import buildConfig from "#buildConfig";
@@ -6,8 +8,6 @@ import {
 	overridesFolder,
 	sharedDestDirectory,
 } from "#globals";
-import fs from "fs";
-import { deleteAsync } from "del";
 import { promiseStream, shouldSkipChangelog } from "#utils/util.ts";
 
 const resourcesPath = upath.join(

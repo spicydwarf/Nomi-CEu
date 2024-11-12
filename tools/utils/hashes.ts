@@ -1,4 +1,4 @@
-import { sha1, md5 } from "hash-wasm";
+import { md5, sha1 } from "hash-wasm";
 import type { HashDef } from "#types/hashDef.ts";
 
 /**

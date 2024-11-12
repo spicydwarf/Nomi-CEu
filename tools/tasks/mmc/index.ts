@@ -1,13 +1,13 @@
+import fs from "fs";
+import { dest, series, src } from "gulp";
+import upath from "upath";
+import buildConfig from "#buildConfig";
 import {
 	mmcDestDirectory,
 	modDestDirectory,
 	modpackManifest,
 	sharedDestDirectory,
 } from "#globals";
-import upath from "upath";
-import fs from "fs";
-import { dest, series, src } from "gulp";
-import buildConfig from "#buildConfig";
 import { promiseStream, shouldSkipChangelog } from "#utils/util.ts";
 
 async function mmcCleanUp() {

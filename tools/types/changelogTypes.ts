@@ -1,4 +1,4 @@
-import ChangelogData from "#tasks/changelog/changelogData.ts";
+import type ChangelogData from "#tasks/changelog/changelogData.ts";
 
 export interface Commit {
 	hash: string;

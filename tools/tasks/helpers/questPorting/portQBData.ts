@@ -1,10 +1,15 @@
+import fs from "fs";
 import { checkbox, input, select } from "@inquirer/prompts";
+import { repoName, repoOwner } from "#globals";
 import type {
 	Changed,
 	PortingType,
 	SavedPorter,
 	SourceOption,
 } from "#types/actionQBTypes.ts";
+import type { Quest, QuestLine } from "#types/bqQuestBook.ts";
+import logInfo from "#utils/log.ts";
+import { git, listRemotes } from "#utils/util.ts";
 import {
 	booleanSelect,
 	cfgExpertPath,
@@ -14,12 +19,7 @@ import {
 	readFromPorter,
 	savedQuestPorter,
 } from "../actionQBUtils.ts";
-import type { Quest, QuestLine } from "#types/bqQuestBook.ts";
-import fs from "fs";
-import logInfo from "#utils/log.ts";
 import { modificationParsers } from "./portQBModifications.ts";
-import { git, listRemotes } from "#utils/util.ts";
-import { repoName, repoOwner } from "#globals";
 
 export default class PortQBData {
 	ref: string;

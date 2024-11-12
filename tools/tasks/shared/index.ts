@@ -1,5 +1,7 @@
 import fs from "fs";
+import { deleteAsync } from "del";
 import gulp, { dest, src } from "gulp";
+import mustache from "mustache";
 import upath from "upath";
 import buildConfig from "#buildConfig";
 import {
@@ -10,8 +12,8 @@ import {
 	sharedDestDirectory,
 	tempDirectory,
 } from "#globals";
-import { deleteAsync } from "del";
 import type { FileDef } from "#types/fileDef.ts";
+import logInfo from "#utils/log.ts";
 import {
 	downloadFileDef,
 	downloadOrRetrieveFileDef,
@@ -19,15 +21,13 @@ import {
 	promiseStream,
 	shouldSkipChangelog,
 } from "#utils/util.ts";
-import transformVersion from "./transformVersion.ts";
 import { createBuildChangelog } from "../changelog/index.ts";
-import mustache from "mustache";
 import {
 	updateFilesBuildSetup,
 	updateLabsVersion,
 } from "../misc/transformFiles.ts";
 import { transformQuestBook } from "./quest.ts";
-import logInfo from "#utils/log.ts";
+import transformVersion from "./transformVersion.ts";
 
 async function sharedCleanUp() {
 	await deleteAsync(upath.join(sharedDestDirectory, "*"), { force: true });

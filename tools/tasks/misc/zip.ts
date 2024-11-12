@@ -1,3 +1,8 @@
+import gulp, { src } from "gulp";
+import zip from "gulp-zip";
+import sanitize from "sanitize-filename";
+import upath from "upath";
+import buildConfig from "#buildConfig";
 import {
 	clientDestDirectory,
 	langDestDirectory,
@@ -5,12 +10,7 @@ import {
 	modpackManifest,
 	serverDestDirectory,
 } from "#globals";
-import upath from "upath";
-import zip from "gulp-zip";
-import gulp, { src } from "gulp";
-import buildConfig from "#buildConfig";
 import { makeArtifactNameBody, promiseStream } from "#utils/util.ts";
-import sanitize from "sanitize-filename";
 
 async function zipFolder(
 	path: string,
