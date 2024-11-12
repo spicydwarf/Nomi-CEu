@@ -20,10 +20,10 @@ import type {
 	YesIgnoreNo,
 } from "#types/actionQBTypes.ts";
 import type { Quest, QuestBook, QuestVisibility } from "#types/bqQuestBook.ts";
+import { compareObjects } from "#utils/diff.js";
 import { logError, logInfo, logWarn } from "#utils/log.ts";
 import { getUniqueToArray } from "#utils/util.ts";
 import type PortQBData from "./questPorting/portQBData.ts";
-import { compareObjects } from "#utils/diff.js";
 
 let data: PortQBData;
 

@@ -2,11 +2,11 @@ import fs from "node:fs";
 import path from "node:path";
 import dedent from "dedent-js";
 import mustache from "mustache";
+import sortKeys from "sort-keys";
 import { configFolder, rootDirectory, templatesFolder } from "#globals";
 import { BuildData } from "#types/transformFiles.ts";
 import { logWarn } from "#utils/log.ts";
 import { isEnvVariableSet, parallel, series } from "#utils/util.ts";
-import sortKeys from "sort-keys";
 
 // This updates all the files, for a release.
 

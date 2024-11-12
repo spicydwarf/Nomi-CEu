@@ -11,19 +11,19 @@ import {
 	LogicType,
 	Message,
 	type Modified,
+	type Operation,
 	type Parser,
 	type QuestChange,
 	type SimpleLogic,
 	type TaskDifferentSolution,
 	type YesIgnoreNo,
-	type Operation,
 } from "#types/actionQBTypes.ts";
 import type { Quest, Task } from "#types/bqQuestBook.ts";
+import { applyChanges, formatDiff } from "#utils/diff.js";
 import { logError, logInfo, logNotImportant, logWarn } from "#utils/log.ts";
 import type { ArrayUnique } from "#utils/util.ts";
 import { booleanSelect, findQuest, id, name } from "../actionQBUtils.ts";
 import type PortQBData from "./portQBData.ts";
-import { applyChanges, formatDiff } from "#utils/diff.js";
 
 let data: PortQBData;
 const taskKey = "tasks";

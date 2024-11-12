@@ -12,6 +12,7 @@ import {
 } from "#globals";
 import type { FileDef } from "#types/fileDef.ts";
 import type { ForgeProfile } from "#types/forgeProfile.ts";
+import { copyFiles, ensureDir, removeDir } from "#utils/build.js";
 import { logInfo, logWarn } from "#utils/log.ts";
 import {
 	downloadOrRetrieveFileDef,
@@ -20,7 +21,6 @@ import {
 	series,
 	shouldSkipChangelog,
 } from "#utils/util.ts";
-import { copyFiles, ensureDir, removeDir } from "#utils/build.js";
 
 let g_forgeJar: string | undefined = undefined;
 

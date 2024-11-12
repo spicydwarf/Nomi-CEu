@@ -1,6 +1,6 @@
-import type { Operation } from "#types/actionQBTypes.js";
-import { diffLines, createPatch, applyPatch } from "diff";
+import { applyPatch, createPatch, diffLines } from "diff";
 import colors from "yoctocolors";
+import type { Operation } from "#types/actionQBTypes.js";
 
 interface FormatDiffOptions {
 	hideLines?: boolean;
