@@ -1,4 +1,4 @@
-import fs from "fs";
+import fs from "node:fs";
 import { sha1 } from "hash-wasm";
 import unzip from "unzipper";
 import upath from "upath";
@@ -30,7 +30,7 @@ async function getForgeURLs() {
 
 	for (const file of files) {
 		// Look for the installation profile.
-		if (!forgeProfile && file.path == "version.json") {
+		if (!forgeProfile && file.path === "version.json") {
 			forgeProfile = JSON.parse((await file.buffer()).toString());
 		}
 	}
@@ -105,7 +105,7 @@ export default async function pruneCache(): Promise<void> {
 			const path = upath.join(buildConfig.downloaderCacheDirectory, sha);
 			const stat = fs.existsSync(path) ? await fs.promises.stat(path) : null;
 
-			if (stat && stat.isFile()) {
+			if (stat?.isFile()) {
 				count += 1;
 				bytes += stat.size;
 				logInfo(`Pruning ${sha}...`);

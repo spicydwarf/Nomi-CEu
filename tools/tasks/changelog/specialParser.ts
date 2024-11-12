@@ -103,8 +103,10 @@ export async function parseIgnore(
 	/* Find Checks */
 	const checkResults: boolean[] = [];
 	for (const [key, check] of Object.entries(info.checks)) {
-		if (ignoreChecks[key]) {
-			checkResults.push(ignoreChecks[key]!(check, data));
+		const ignoreCheck = ignoreChecks[key];
+
+		if (ignoreCheck) {
+			checkResults.push(ignoreCheck(check, data));
 		} else {
 			logError(dedent`
 			Ignore Check with key '${key}' in body:
@@ -134,11 +136,9 @@ export async function parseIgnore(
 	}
 
 	/* Find Logic */
-	let logic: IgnoreLogic;
-	if (info.logic === undefined) logic = defaultIgnoreLogic;
-	else if (ignoreLogics[info.logic]) {
-		logic = ignoreLogics[info.logic]!;
-	} else {
+	const logic = info.logic ? ignoreLogics[info.logic] : defaultIgnoreLogic;
+
+	if (!logic) {
 		logError(dedent`
 			Ignore Logic '${info.logic}' in body:
 			\`\`\`
@@ -148,10 +148,9 @@ export async function parseIgnore(
 				.map((key) => `'${key}'`)
 				.join(", ")}.`);
 		if (data.isTest) throw new Error("Failed Parsing Ignore Logic. See Above.");
-		logic = defaultIgnoreLogic;
 	}
 
-	if (logic(checkResults)) return new Ignored(info.addCommitList);
+	if (logic?.(checkResults)) return new Ignored(info.addCommitList);
 	return undefined;
 }
 

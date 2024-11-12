@@ -1,6 +1,6 @@
 import { modpackManifest } from "#globals";
 
-import fs from "fs";
+import fs from "node:fs";
 import * as core from "@actions/core";
 import type { AxiosRequestConfig } from "axios";
 import { filesize } from "filesize";
@@ -61,7 +61,7 @@ async function upload(files: { name: string; displayName: string }[]) {
 	logInfo("Fetching CurseForge version manifest...");
 	const versionsManifest: CurseForgeLegacyMCVersion[] | undefined = (
 		await getAxios()({
-			url: CURSEFORGE_LEGACY_ENDPOINT + "api/game/versions",
+			url: `${CURSEFORGE_LEGACY_ENDPOINT}api/game/versions`,
 			method: "get",
 			headers: tokenHeaders,
 			responseType: "json",
@@ -73,7 +73,7 @@ async function upload(files: { name: string; displayName: string }[]) {
 	}
 
 	const version = versionsManifest.find(
-		(m) => m.name == modpackManifest.minecraft.version,
+		(m) => m.name === modpackManifest.minecraft.version,
 	);
 
 	if (!version) {
@@ -94,9 +94,7 @@ async function upload(files: { name: string; displayName: string }[]) {
 	// Upload artifacts.
 	for (const filePath of filePaths) {
 		const options: AxiosRequestConfig<unknown> = {
-			url:
-				CURSEFORGE_LEGACY_ENDPOINT +
-				`api/projects/${process.env.CURSEFORGE_PROJECT_ID}/upload-file`,
+			url: `${CURSEFORGE_LEGACY_ENDPOINT}api/projects/${process.env.CURSEFORGE_PROJECT_ID}/upload-file`,
 			method: "post",
 			headers: {
 				...tokenHeaders,
@@ -117,13 +115,12 @@ async function upload(files: { name: string; displayName: string }[]) {
 		};
 
 		logInfo(
-			`Uploading ${filePath.file.name} to CurseForge...` +
-				(parentID ? `(child of ${parentID})` : ""),
+			`Uploading ${filePath.file.name} to CurseForge...${parentID ? `(child of ${parentID})` : ""}`,
 		);
 
 		const response: { id: number } = (await getAxios()(options)).data;
 
-		if (response && response.id) {
+		if (response?.id) {
 			uploadedIDs.push({
 				filePath: filePath.path,
 				displayName: filePath.file.displayName,
@@ -174,17 +171,13 @@ export async function deployCurseForge(): Promise<void> {
 	const files = [
 		{
 			name: sanitize(
-				(
-					makeArtifactNameBody(modpackManifest.name) + "-client.zip"
-				).toLowerCase(),
+				`${makeArtifactNameBody(modpackManifest.name)}-client.zip`.toLowerCase(),
 			),
 			displayName: displayName,
 		},
 		{
 			name: sanitize(
-				(
-					makeArtifactNameBody(modpackManifest.name) + "-server.zip"
-				).toLowerCase(),
+				`${makeArtifactNameBody(modpackManifest.name)}-server.zip`.toLowerCase(),
 			),
 			displayName: `${displayName}-server`,
 		},

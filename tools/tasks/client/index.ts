@@ -1,4 +1,4 @@
-import fs from "fs";
+import fs from "node:fs";
 import dedent from "dedent-js";
 import { deleteAsync } from "del";
 import { dest, series, src } from "gulp";
@@ -42,7 +42,7 @@ async function exportModpackManifest() {
 				if (!file.sides.includes("client")) return;
 
 				const newFile = Object.assign({}, file);
-				delete newFile.sides;
+				newFile.sides = undefined;
 
 				return newFile;
 			}

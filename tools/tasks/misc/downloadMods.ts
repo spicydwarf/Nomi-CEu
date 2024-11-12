@@ -1,4 +1,4 @@
-import fs from "fs";
+import fs from "node:fs";
 import { deleteAsync } from "del";
 import { parallel, series } from "gulp";
 import upath from "upath";
@@ -45,7 +45,7 @@ async function downloadMods(): Promise<void> {
 async function downloadClientMods(): Promise<void> {
 	logInfo("Fetching Client Mods...");
 	await fetchMods(
-		modpackManifest.files.filter((f) => f.sides && f.sides.includes("client")),
+		modpackManifest.files.filter((f) => f.sides?.includes("client")),
 		upath.join(modDestDirectory, "client"),
 	);
 }
@@ -56,7 +56,7 @@ async function downloadClientMods(): Promise<void> {
 async function downloadServerMods(): Promise<void> {
 	logInfo("Fetching Server Mods...");
 	await fetchMods(
-		modpackManifest.files.filter((f) => f.sides && f.sides.includes("server")),
+		modpackManifest.files.filter((f) => f.sides?.includes("server")),
 		upath.join(modDestDirectory, "server"),
 	);
 }

@@ -1,6 +1,6 @@
 import { modpackManifest } from "#globals";
 
-import fs from "fs";
+import fs from "node:fs";
 import mustache from "mustache";
 import sanitize from "sanitize-filename";
 import upath from "upath";

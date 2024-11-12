@@ -66,9 +66,9 @@ interface Javadoc {
 }
 
 interface Classifiers {
-	["natives-linux"]: NativesLinux;
-	["natives-osx"]: NativesOsx;
-	["natives-windows"]: NativesWindows;
+	"natives-linux": NativesLinux;
+	"natives-osx": NativesOsx;
+	"natives-windows": NativesWindows;
 	sources: Sources;
 	javadoc: Javadoc;
 }

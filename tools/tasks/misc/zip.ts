@@ -34,9 +34,7 @@ function makeZipper(src: string, artifactName: string, isCFZip = false) {
 				? upath.join(buildConfig.buildDestinationDirectory, "cf")
 				: buildConfig.buildDestinationDirectory,
 			sanitize(
-				(
-					makeArtifactNameBody(modpackManifest.name) + `-${artifactName}.zip`
-				).toLowerCase(),
+				`${makeArtifactNameBody(modpackManifest.name)}-${artifactName}.zip`.toLowerCase(),
 			),
 		);
 	};

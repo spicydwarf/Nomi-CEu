@@ -1,4 +1,4 @@
-import fs from "fs";
+import fs from "node:fs";
 import { deleteAsync } from "del";
 import { dest, series, src } from "gulp";
 import mustache from "mustache";
@@ -61,11 +61,11 @@ async function downloadForge() {
 
 	for (const file of files) {
 		// Look for the universal jar.
-		if (!forgeUniversalJar && file.path == forgeUniversalPath) {
+		if (!forgeUniversalJar && file.path === forgeUniversalPath) {
 			forgeUniversalJar = await file.buffer();
 		}
 		// Look for the installation profile.
-		else if (!forgeProfile && file.path == "version.json") {
+		else if (!forgeProfile && file.path === "version.json") {
 			forgeProfile = JSON.parse((await file.buffer()).toString());
 		}
 
@@ -159,7 +159,7 @@ async function downloadMinecraftServer() {
 		hashes: [{ id: "sha1", hashes: versionManifest.downloads.server.sha1 }],
 	});
 
-	if (!(versionManifest.downloads && versionManifest.downloads.server)) {
+	if (!versionManifest.downloads?.server) {
 		throw new Error(`No server jar file found for ${versionManifest.id}`);
 	}
 

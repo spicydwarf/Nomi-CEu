@@ -188,7 +188,8 @@ async function getChangedProjectIDs(sha: string): Promise<number[]> {
 async function getCommitChange(
 	sha: string,
 ): Promise<ArrayUnique<ModpackManifestFile> | undefined> {
-	let oldManifest: ModpackManifest, newManifest: ModpackManifest;
+	let oldManifest: ModpackManifest;
+	let newManifest: ModpackManifest;
 	try {
 		oldManifest = JSON.parse(
 			await getFileAtRevision("manifest.json", `${sha}^`),

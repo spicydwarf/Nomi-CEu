@@ -1,4 +1,4 @@
-import fs from "fs";
+import fs from "node:fs";
 import { checkbox, input, select } from "@inquirer/prompts";
 import { repoName, repoOwner } from "#globals";
 import type {

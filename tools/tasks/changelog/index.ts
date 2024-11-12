@@ -1,4 +1,4 @@
-import fs from "fs";
+import fs from "node:fs";
 import { marked } from "marked";
 import upath from "upath";
 import buildConfig from "#buildConfig";

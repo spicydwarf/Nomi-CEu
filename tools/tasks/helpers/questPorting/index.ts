@@ -1,4 +1,4 @@
-import fs from "fs";
+import fs from "node:fs";
 import upath from "upath";
 import { rootDirectory } from "#globals";
 import type { Quest, QuestBook } from "#types/bqQuestBook.ts";

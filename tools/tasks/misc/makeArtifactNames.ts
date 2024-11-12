@@ -7,10 +7,10 @@ import { makeArtifactNameBody } from "#utils/util.ts";
 export async function makeArtifactNames(): Promise<void> {
 	const body = makeArtifactNameBody(modpackManifest.name);
 	const names: Record<string, string> = {
-		client: body + "-client",
-		server: body + "-server",
-		lang: body + "-lang",
-		mmc: body + "-mmc",
+		client: `${body}-client`,
+		server: `${body}-server`,
+		lang: `${body}-lang`,
+		mmc: `${body}-mmc`,
 	};
 
 	for (const [type, name] of Object.entries(names)) {

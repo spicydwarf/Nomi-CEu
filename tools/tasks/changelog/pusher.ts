@@ -123,7 +123,7 @@ async function pushCategory(category: Category) {
 	for (const subCategory of category.subCategories) {
 		// Loop through key list instead of map to produce correct order
 		const list = category.changelogSection?.get(subCategory);
-		if (list && list.length != 0) {
+		if (list && list.length !== 0) {
 			// Push Key Name (only pushes if Key Name is not "")
 			if (subCategory.keyName) {
 				categoryLog.push(`### ${subCategory.keyName}:`);
@@ -231,7 +231,7 @@ async function formatChangelogMessage(
 	subMessage = false,
 ): Promise<string> {
 	const indentation =
-		changelogMessage.indentation == undefined
+		changelogMessage.indentation === undefined
 			? defaultIndentation
 			: changelogMessage.indentation;
 	const message = changelogMessage.commitMessage.trim();
@@ -278,7 +278,7 @@ export async function formatMessage(
 	commits?: Commit[],
 	subMessage = false,
 ): Promise<string> {
-	if (!commits || commits.length == 0 || subMessage) {
+	if (!commits || commits.length === 0 || subMessage) {
 		return `${indentation}* ${message}`;
 	}
 

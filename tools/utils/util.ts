@@ -1,5 +1,5 @@
-import { execSync } from "child_process";
-import fs from "fs";
+import { execSync } from "node:child_process";
+import fs from "node:fs";
 import stream from "node:stream";
 import { retry } from "@octokit/plugin-retry";
 import { throttling } from "@octokit/plugin-throttling";
@@ -175,7 +175,7 @@ export const checkEnvironmentalVariables = (vars: string[]): void => {
  * Returns true if given variable set, false otherwise.
  */
 export const isEnvVariableSet = (env: string): boolean => {
-	return Boolean(process.env[env]) && process.env[env] != "";
+	return Boolean(process.env[env]) && process.env[env] !== "";
 };
 
 /**
@@ -185,7 +185,7 @@ export const checkGitTag = (tag: string): void => {
 	// The below command returns an empty buffer if the given tag does not exist.
 	const tagBuffer = execSync(`git tag --list ${tag}`);
 
-	if (!tagBuffer || tagBuffer.toString().trim() != tag) {
+	if (!tagBuffer || tagBuffer.toString().trim() !== tag) {
 		throw new Error(`Tag ${tag} could not be found.`);
 	}
 };
@@ -296,13 +296,13 @@ function fixConfig(
 	// @ts-expect-error agent non-existent in type declaration`
 	if (axiosInstance.defaults.agent === config.agent) {
 		// @ts-expect-error agent non-existent in type declaration
-		delete config.agent;
+		config.agent = undefined;
 	}
 	if (axiosInstance.defaults.httpAgent === config.httpAgent) {
-		delete config.httpAgent;
+		config.httpAgent = undefined;
 	}
 	if (axiosInstance.defaults.httpsAgent === config.httpsAgent) {
-		delete config.httpsAgent;
+		config.httpsAgent = undefined;
 	}
 }
 
@@ -471,9 +471,9 @@ export async function compareAndExpandManifestDependencies(
 			return map;
 		}, {});
 
-	const removed: ModChangeInfo[] = [],
-		modified: ModChangeInfo[] = [],
-		added: ModChangeInfo[] = [];
+	const removed: ModChangeInfo[] = [];
+	const modified: ModChangeInfo[] = [];
+	const added: ModChangeInfo[] = [];
 
 	// Create a distinct map of project IDs.
 	const projectIDs = Array.from(
@@ -525,11 +525,15 @@ export async function compareAndExpandManifestDependencies(
 			);
 		}
 		// Exists in both. Modified? Inner join.
-		else if (oldFileInfo!.fileID != newFileInfo!.fileID) {
+		else if (
+			oldFileInfo &&
+			newFileInfo &&
+			oldFileInfo.fileID !== newFileInfo.fileID
+		) {
 			const names = Promise.all([
 				getModName(projectID),
-				getFileName(projectID, oldFileInfo!.fileID),
-				getFileName(projectID, newFileInfo!.fileID),
+				getFileName(projectID, oldFileInfo.fileID),
+				getFileName(projectID, newFileInfo.fileID),
 			]);
 			toFetch.push(
 				names.then(([mod, oldFile, newFile]) => {
@@ -581,8 +585,12 @@ export async function compareAndExpandManifestDependencies(
 			added.push({ modName: newDep.name });
 		}
 		// Exists in both. Modified? Inner join.
-		else if (oldDep!.url != newDep!.url || oldDep!.name != newDep!.name) {
-			modified.push({ modName: newDep!.name });
+		else if (
+			oldDep &&
+			newDep &&
+			(oldDep.url !== newDep.url || oldDep.name !== newDep.name)
+		) {
+			modified.push({ modName: newDep.name });
 		}
 	});
 
@@ -617,7 +625,7 @@ export async function getVersionManifest(
 
 	if (!manifest) return undefined;
 
-	const version = manifest.versions.find((x) => x.id == minecraftVersion);
+	const version = manifest.versions.find((x) => x.id === minecraftVersion);
 	if (!version) {
 		return;
 	}
@@ -644,7 +652,7 @@ export function cleanupVersion(version?: string): string {
 	const list = version.match(/[\d+.?]+/g);
 	if (!list) return version;
 
-	if (list.at(-1) == "0") return version;
+	if (list.at(-1) === "0") return version;
 
 	return list.at(-1)!;
 }
@@ -838,10 +846,8 @@ export async function getForgeJar(): Promise<{
 	 * Break down the Forge version defined in manifest.json.
 	 */
 	const parsedForgeEntry = FORGE_VERSION_REG.exec(
-		(
-			minecraft.modLoaders.find((x) => x.id && x.id.indexOf("forge") != -1) ||
-			{}
-		).id || "",
+		minecraft.modLoaders.find((x) => x.id && x.id.indexOf("forge") !== -1)
+			?.id || "",
 	);
 
 	if (!parsedForgeEntry) {
@@ -852,11 +858,10 @@ export async function getForgeJar(): Promise<{
 	 * Transform Forge version into Maven library path.
 	 */
 	const forgeMavenLibrary = `net.minecraftforge:forge:${minecraft.version}-${parsedForgeEntry[1]}`;
-	const forgeInstallerPath =
-		libraryToPath(forgeMavenLibrary) + "-installer.jar";
+	const forgeInstallerPath = `${libraryToPath(forgeMavenLibrary)}-installer.jar`;
 	const forgeUniversalPath = upath.join(
 		"maven",
-		libraryToPath(forgeMavenLibrary) + ".jar",
+		`${libraryToPath(forgeMavenLibrary)}.jar`,
 	);
 
 	/**

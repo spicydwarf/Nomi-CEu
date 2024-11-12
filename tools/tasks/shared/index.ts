@@ -1,4 +1,4 @@
-import fs from "fs";
+import fs from "node:fs";
 import { deleteAsync } from "del";
 import gulp, { dest, src } from "gulp";
 import mustache from "mustache";
@@ -96,7 +96,7 @@ async function fetchExternalDependencies() {
 			};
 		});
 
-		delete modpackManifest.externalDependencies;
+		modpackManifest.externalDependencies = undefined;
 
 		await Promise.all(
 			depDefs.map(async (depDef) => {

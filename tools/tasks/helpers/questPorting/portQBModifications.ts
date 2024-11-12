@@ -92,9 +92,7 @@ function formatOp(operation: Operation): string {
 	switch (operation) {
 		case "add":
 			return "Addition";
-
 		default:
-		case "replace":
 			return "Modification";
 
 		case "remove":
@@ -169,8 +167,9 @@ function findAllParsers(modify: Modified): {
 			let foundBunch = false;
 			for (const parserBunch of foundBuncableParsers.get(parser.id) ?? []) {
 				if (
+					parserBunch.changeAndPath[0] &&
 					!parserBunch.logic.applyTogether(
-						parserBunch.changeAndPath[0]!.path,
+						parserBunch.changeAndPath[0].path,
 						pathList,
 					)
 				)
@@ -261,7 +260,7 @@ const modifyDesc = async (
 			logInfo("Replacing Description...");
 			description = newQuest;
 			break;
-		case "CUSTOM":
+		case "CUSTOM": {
 			const template = (await select({
 				message: "What Should the Original Text Be?",
 				choices: [
@@ -286,6 +285,7 @@ const modifyDesc = async (
 				return;
 			}
 			break;
+		}
 	}
 
 	questToModify["properties:10"]["betterquesting:10"]["desc:8"] = description;
@@ -493,7 +493,7 @@ const modifyTasks = async (
 						validate: (value) => {
 							const numValue = Number.parseInt(value);
 							if (numValue === -1) return true; // Allow Cancelling
-							if (isNaN(numValue) || numValue < 0) {
+							if (Number.isNaN(numValue) || numValue < 0) {
 								return "Please Enter a Number Value >= 0!";
 							}
 							const foundTask = toModify.get(numValue);
@@ -801,7 +801,7 @@ function isAddingOrRemovingComplexTask(path: string[]): boolean {
 
 function getIndex(path: string[], pathKey: string): number {
 	const index = path.indexOf(pathKey) + 1;
-	if (index == 0 || index >= path.length) return -1; // indexOf returns -1 if not found, +1 = 0
+	if (index === 0 || index >= path.length) return -1; // indexOf returns -1 if not found, +1 = 0
 	const num = Number.parseInt(path[index]!);
 	if (Number.isNaN(num)) return -1;
 	return num;

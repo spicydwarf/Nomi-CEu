@@ -117,6 +117,6 @@ export class Message {
 
 	toFormattedString(): string {
 		if (this.repeats === 1) return this.message;
-		else return `${this.message} (x${this.repeats})`;
+		return `${this.message} (x${this.repeats})`;
 	}
 }

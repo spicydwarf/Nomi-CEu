@@ -1,4 +1,4 @@
-import fs from "fs";
+import fs from "node:fs";
 import { input, select } from "@inquirer/prompts";
 import colors from "colors";
 import { diff } from "just-diff";
@@ -141,7 +141,7 @@ export function stripRewards(quest: Quest, shouldCheck = false, log = false) {
 			continue;
 
 		for (const [itemKey, item] of Object.entries(reward["rewards:9"])) {
-			if (item && item["id:8"] && nomiCoinMatcher.test(item["id:8"])) {
+			if (item?.["id:8"] && nomiCoinMatcher.test(item["id:8"])) {
 				if (shouldCheck)
 					throw new Error(
 						`Expert Quest with ID ${quest["questID:3"]} has Nomi Coin Reward!`,
@@ -250,7 +250,7 @@ export async function findQuest(
 				validate: (value) => {
 					const numValue = Number.parseInt(value);
 					if (numValue === -1) return true; // Allow Cancelling
-					if (isNaN(numValue) || numValue < 0) {
+					if (Number.isNaN(numValue) || numValue < 0) {
 						return "Please Enter a Number Value >= 0!";
 					}
 					return true;
@@ -637,7 +637,8 @@ async function savePorter() {
 		if (!sourceQuest) continue;
 		const targetID = id(sourceQuest);
 
-		let normalID: number, expertID: number;
+		let normalID: number;
+		let expertID: number;
 		switch (data.type) {
 			case "NORMAL":
 				normalID = sourceID;
@@ -696,7 +697,8 @@ export async function readFromPorter(
 		)
 			throw new Error("ID must be a number!");
 
-		let sourceID: number, targetID: number;
+		let sourceID: number;
+		let targetID: number;
 		switch (data.type) {
 			case "NORMAL":
 				sourceID = savedQuestPath.normal;

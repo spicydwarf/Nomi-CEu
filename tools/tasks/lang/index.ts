@@ -1,4 +1,4 @@
-import fs from "fs";
+import fs from "node:fs";
 import { deleteAsync } from "del";
 import { dest, series, src } from "gulp";
 import upath from "upath";

@@ -1,4 +1,4 @@
-import fs from "fs";
+import fs from "node:fs";
 import upath from "upath";
 import buildConfig from "#buildConfig";
 import type {
@@ -318,18 +318,18 @@ export async function fetchMods(
 				if (fileInfo.hashes) {
 					fileDef.hashes = fileInfo.hashes.map((hash) => ({
 						hashes: hash.value,
-						id: hash.algo == 1 ? "sha1" : "md5",
+						id: hash.algo === 1 ? "sha1" : "md5",
 					}));
 				}
 
 				const modFile = await downloadOrRetrieveFileDef(fileDef);
 				fetched += 1;
 
-				if (modFile.reason == RetrievedFileDefReason.Downloaded) {
+				if (modFile.reason === RetrievedFileDefReason.Downloaded) {
 					logInfo(
 						`Downloaded ${upath.basename(fileDef.url)}... (${fetched} / ${toFetch.length})`,
 					);
-				} else if (modFile.reason == RetrievedFileDefReason.CacheHit) {
+				} else if (modFile.reason === RetrievedFileDefReason.CacheHit) {
 					logInfo(
 						`Fetched ${upath.basename(fileDef.url)} from cache... (${fetched} / ${toFetch.length})`,
 					);

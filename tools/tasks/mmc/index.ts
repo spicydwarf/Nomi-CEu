@@ -1,4 +1,4 @@
-import fs from "fs";
+import fs from "node:fs";
 import { dest, series, src } from "gulp";
 import upath from "upath";
 import buildConfig from "#buildConfig";
