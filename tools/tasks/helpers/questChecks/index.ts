@@ -17,7 +17,7 @@ import {
 	stripRewards,
 } from "#tasks/helpers/actionQBUtils.ts";
 import type { SourceOption } from "#types/actionQBTypes.ts";
-import type { QuestBook } from "#types/bqQuestBook.ts";
+import type { Quest, QuestBook, QuestLine } from "#types/bqQuestBook.ts";
 import logInfo, { logWarn } from "#utils/log.ts";
 import { isEnvVariableSet } from "#utils/util.ts";
 
@@ -161,10 +161,10 @@ async function checkAndFixQB(
 	// Checks for Quests
 	logInfo("Checking Quests...");
 	for (const questKey of Object.keys(qb["questDatabase:9"])) {
+		const q = qb["questDatabase:9"][questKey] as Quest;
+
 		// Copy Quest if Should Check is false (So we don't modify the underlying object)
-		const quest = shouldCheck
-			? qb["questDatabase:9"][questKey]!
-			: { ...qb["questDatabase:9"][questKey]! };
+		const quest = shouldCheck ? q : { ...q };
 
 		const foundID = id(quest);
 
@@ -314,7 +314,7 @@ async function checkAndFixQB(
 	// Check for Redundant Formatting in Quest Lines
 	logInfo("Checking Quest Lines...");
 	for (const lineKey of Object.keys(qb["questLines:9"])) {
-		const line = qb["questLines:9"][lineKey]!;
+		const line = qb["questLines:9"][lineKey] as QuestLine;
 		line["properties:10"]["betterquesting:10"]["name:8"] =
 			stripOrThrowExcessSpacesOrFormatting(
 				shouldCheck,

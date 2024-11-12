@@ -110,18 +110,18 @@ export async function parseCommitBody(
 	commitObject: Commit,
 	parser: Parser,
 ): Promise<boolean | Ignored> {
-	if (commitBody.includes(modInfoKey))
-		await parseModInfo(commitBody, commitObject);
+	let commit = commitObject;
+	if (commitBody.includes(modInfoKey)) await parseModInfo(commitBody, commit);
 
 	if (commitBody.includes(coAuthorsKey))
-		await parseCoAuthor(commitBody, commitObject);
+		await parseCoAuthor(commitBody, commit);
 
 	if (commitBody.includes(expandKey)) {
-		await parseExpand(commitBody, commitObject, parser);
+		await parseExpand(commitBody, commit, parser);
 		return true;
 	}
 	if (commitBody.includes(ignoreKey)) {
-		const ignore = await parseIgnore(commitBody, commitObject);
+		const ignore = await parseIgnore(commitBody, commit);
 
 		// Only return if ignore is not undefined
 		if (ignore) return ignore;
@@ -129,29 +129,29 @@ export async function parseCommitBody(
 
 	let newPriority = 0;
 	if (commitBody.includes(priorityKey)) {
-		const priority = await parsePriority(commitBody, commitObject);
+		const priority = await parsePriority(commitBody, commit);
 
 		// Only set if priority is not undefined or 0
 		if (priority) newPriority = priority;
 	}
-	// Copy commit if new priority (don't mess it up for other changelog messages when using expand)
-	if (commitObject.priority !== newPriority) {
-		commitObject = { ...commitObject };
-		commitObject.priority = newPriority;
+	if (commit.priority !== newPriority) {
+		// Copy commit if new priority (don't mess it up for other changelog messages when using expand)
+		commit = { ...commit };
+		commit.priority = newPriority;
 	}
 
 	if (commitBody.includes(detailsKey)) {
-		await parseDetails(commitMessage, commitBody, commitObject, parser);
+		await parseDetails(commitMessage, commitBody, commit, parser);
 		return true;
 	}
 	if (commitBody.includes(noCategoryKey)) {
 		return true;
 	}
 	if (commitBody.includes(combineKey)) {
-		await parseCombine(commitBody, commitObject);
+		await parseCombine(commitBody, commit);
 		return true;
 	}
-	return sortCommit(commitMessage, commitBody, commitObject);
+	return sortCommit(commitMessage, commitBody, commit);
 }
 
 /**
@@ -171,14 +171,14 @@ function sortCommit(
 	const sortedCategories: Category[] = findCategories(commitBody);
 	if (sortedCategories.length === 0) return false;
 
-	sortedCategories.forEach((category) => {
+	for (const category of sortedCategories) {
 		const subCategory = findSubCategory(commitBody, category);
 		category.changelogSection?.get(subCategory)?.push({
 			commitMessage: message,
 			commitObject: commit,
 			indentation: indentation,
 		});
-	});
+	}
 	return true;
 }
 

@@ -174,17 +174,17 @@ export async function findQuest(
 	if (data.ignoreQuests.has(sourceId)) return undefined;
 	if (data.foundQuests.has(sourceId)) return data.foundQuests.get(sourceId);
 
-	// If no source quest, default behaviour
-	if (!sourceQuest) sourceQuest = data.currentIDsToQuests.get(sourceId);
+	const source = sourceQuest ?? data.currentIDsToQuests.get(sourceId);
+
 	// If still no source quest, throw
-	if (!sourceQuest)
+	if (!source)
 		throw new Error(
 			`Request Find Quest for id ${sourceId}, which is not in IDs to Quests!`,
 		);
 
 	logInfo(
 		colors.magenta(
-			`Finding Corresponding Quest for Source Quest with ID ${sourceId} and Name ${name(sourceQuest)}...`,
+			`Finding Corresponding Quest for Source Quest with ID ${sourceId} and Name ${name(source)}...`,
 		),
 	);
 
@@ -212,13 +212,13 @@ export async function findQuest(
 	// Generate Quest By Name if Needed
 	if (!cachedQuestByName) {
 		cachedQuestByName = new Map<string, Quest>();
-		[...data.toChangeIDsToQuests.values()].forEach((item) =>
-			cachedQuestByName.set(removeFormatting(name(item)), item),
-		);
+		for (const item of data.toChangeIDsToQuests.values()) {
+			cachedQuestByName.set(removeFormatting(name(item)), item);
+		}
 	}
 
 	// Try Find by Name
-	const removeFormattedName = removeFormatting(name(sourceQuest));
+	const removeFormattedName = removeFormatting(name(source));
 	const questByName = cachedQuestByName.get(removeFormattedName);
 	if (questByName && !isEmptyQuest(questByName)) {
 		// Ask the client if the corresponding id on the corresponding qb is correct
@@ -453,9 +453,9 @@ export function getDifferences(old: Quest, current: Quest): QuestChange[] {
 	);
 
 	// Apply special modifiers
-	specialModifierHandlers.forEach((handler) =>
-		handler(old, current, filteredDiff),
-	);
+	for (const handler of specialModifierHandlers) {
+		handler(old, current, filteredDiff);
+	}
 
 	return filteredDiff;
 }
@@ -538,7 +538,7 @@ export function stringifyQB(qb: QuestBook): string {
 			replacement: "\\u0027",
 		},
 	];
-	qb = sortKeysRecursiveIgnoreArray(qb, (key1, key2): number => {
+	const sortedQb = sortKeysRecursiveIgnoreArray(qb, (key1, key2): number => {
 		const defaultVal = key2 < key1 ? 1 : -1;
 
 		if (!key1.includes(":") || !key2.includes(":")) {
@@ -558,7 +558,7 @@ export function stringifyQB(qb: QuestBook): string {
 		if (Number.isNaN(num1) || Number.isNaN(num2)) return defaultVal;
 		return num1 - num2;
 	});
-	let parsed = JSON.stringify(qb, null, 2).replace(
+	let parsed = JSON.stringify(sortedQb, null, 2).replace(
 		/("[a-zA-Z_]+:[56]":\s)(-?[0-9]+)(,?)$/gm,
 		"$1$2.0$3",
 	); // Add '.0' to any Float/Double Values that are Integers
@@ -579,15 +579,12 @@ function sortKeysRecursiveIgnoreArray<T extends object>(
 	const result = sortKeys(object as Record<string, unknown>, { compare }) as T;
 
 	// We can modify results, Object.Keys returns a static array
-	Object.keys(result).forEach((key) => {
+	for (const key of Object.keys(result)) {
 		const current = lodash.get(result, key);
-		if (current) {
-			if (typeof current === "object") {
-				lodash.set(result, key, sortKeys(current, { compare }));
-				return;
-			}
+		if (current && typeof current === "object") {
+			lodash.set(result, key, sortKeys(current, { compare }));
 		}
-	});
+	}
 
 	return result;
 }
@@ -746,6 +743,9 @@ function addToOrReplaceSet<T>(
 ): Set<T> {
 	if (replaceExisting) return new Set<T>(array);
 
-	array.forEach((value) => set.add(value));
+	for (const value of array) {
+		set.add(value);
+	}
+
 	return set;
 }

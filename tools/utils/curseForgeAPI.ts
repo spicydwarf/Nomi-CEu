@@ -31,7 +31,7 @@ export async function fetchProject(
 	toFetch: number,
 ): Promise<CurseForgeProject> {
 	if (curseForgeProjectCache[toFetch]) {
-		return curseForgeProjectCache[toFetch]!;
+		return curseForgeProjectCache[toFetch] as CurseForgeProject;
 	}
 
 	const project: CurseForgeProject | undefined = (
@@ -62,7 +62,7 @@ export async function fetchFileInfo(
 	const slug = `${projectID}/${fileID}`;
 
 	if (fetchedFileInfoCache[slug]) {
-		return fetchedFileInfoCache[slug]!;
+		return fetchedFileInfoCache[slug] as CurseForgeFileInfo;
 	}
 
 	const fileInfo: CurseForgeFileInfo = (
@@ -105,12 +105,12 @@ export async function fetchFilesBulk(
 	const unfetched: ProjectToFileId[] = [];
 
 	// Determine projects that have been fetched already.
-	toFetch.forEach((file) => {
+	for (const file of toFetch) {
 		const slug = `${file.projectID}/${file.fileID}`;
 		const cached = fetchedFileInfoCache[slug];
 		if (cached) fileInfos.push(cached);
 		else unfetched.push(file);
-	});
+	}
 
 	// Sort list (reduces risk of duplicate entries)
 	unfetched.sort((a, b) => a.fileID - b.fileID);
@@ -142,20 +142,20 @@ export async function fetchFilesBulk(
 		if (fetched.length > unfetched.length) {
 			// Can't directly use Set, as Set compares object ref, not object data
 			const uniqueFileIDs: number[] = [];
-			fetched.forEach((file) => {
+			for (const file of fetched) {
 				if (!uniqueFileIDs.includes(file.id)) {
 					fileInfos.push(file);
 					uniqueFileIDs.push(file.id);
 				}
-			});
+			}
 		} else {
 			fileInfos.push(...fetched);
 		}
 
 		// Cache fetched stuff.
-		fetched.forEach((info) => {
+		for (const info of fetched) {
 			fetchedFileInfoCache[`${info.modId}/${info.id}`] = info;
-		});
+		}
 
 		// In case we haven't received the proper amount of mod infos,
 		// try requesting them individually.
@@ -220,14 +220,14 @@ export async function fetchProjectsBulk(
 	const unfetched: number[] = [];
 
 	// Determine projects that have been fetched already.
-	toFetch.forEach((id) => {
+	for (const id of toFetch) {
 		const cached = curseForgeProjectCache[id];
 		if (cached) {
 			modInfos.push(cached);
 		} else {
 			unfetched.push(id);
 		}
-	});
+	}
 
 	if (unfetched.length > 0) {
 		// Augment the array of known projects with new info.
@@ -251,9 +251,9 @@ export async function fetchProjectsBulk(
 		modInfos.push(...fetched);
 
 		// Cache fetched stuff.
-		fetched.forEach((mi) => {
-			curseForgeProjectCache[mi.id] = mi;
-		});
+		for (const modInfo of fetched) {
+			curseForgeProjectCache[modInfo.id] = modInfo;
+		}
 
 		// In case we haven't received the proper amount of mod infos,
 		// try requesting them individually.

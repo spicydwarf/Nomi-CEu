@@ -90,24 +90,24 @@ const uselessProps: Record<string, string | number> = {
 };
 
 function stripUselessMetadata(object: Record<string, unknown>) {
-	Object.keys(object).forEach((propName) => {
+	for (const propName of Object.keys(object)) {
 		const prop = object[propName];
 		if (prop === uselessProps[propName]) {
-			return delete object[propName];
+			object[propName] = undefined;
 		}
 
 		if (typeof prop === "object") {
 			if (Array.isArray(prop) && prop.length === 0) {
-				return delete object[propName];
+				object[propName] = undefined;
 			}
 
 			stripUselessMetadata(prop as Record<string, unknown>);
 
 			if (Object.keys(prop as Record<string, unknown>).length === 0) {
-				return delete object[propName];
+				object[propName] = undefined;
 			}
 		}
-	});
+	}
 }
 
 /**

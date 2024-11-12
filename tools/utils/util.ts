@@ -164,11 +164,11 @@ export const libraryToPath = (library: string): string => {
  * Checks if given environmental variables are set. Throws otherwise.
  */
 export const checkEnvironmentalVariables = (vars: string[]): void => {
-	vars.forEach((vari) => {
+	for (const vari of vars) {
 		if (!isEnvVariableSet(vari)) {
 			throw new Error(`Environmental variable ${vari} is unset.`);
 		}
-	});
+	}
 };
 
 /**
@@ -368,11 +368,9 @@ export function makeArtifactNameBody(baseName: string): string {
  * @throws
  */
 export function getLastGitTag(before?: string): string {
-	if (before) {
-		before = `"${before}^"`;
-	}
-
-	return execSync(`git describe --abbrev=0 --tags ${before || ""}`)
+	return execSync(
+		`git describe --abbrev=0 --tags ${before ? `"${before}^"` : ""}`,
+	)
 		.toString()
 		.trim();
 }
@@ -391,9 +389,9 @@ export async function getChangelog(
 ): Promise<Commit[]> {
 	const options: string[] = ["--no-merges", `${since}..${to}`];
 	if (dirs) {
-		dirs.forEach((dir) => {
+		for (const dir of dirs) {
 			options.push(pathspec(dir));
-		});
+		}
 	}
 
 	const commitList: Commit[] = [];
@@ -404,7 +402,9 @@ export async function getChangelog(
 		}
 
 		// Cannot simply set commitList as output.all as is read only, must do this
-		output.all.forEach((commit) => commitList.push(commit));
+		for (const commit of output.all) {
+			commitList.push(commit);
+		}
 	});
 
 	return commitList;
@@ -572,7 +572,7 @@ export async function compareAndExpandManifestDependencies(
 		]),
 	);
 
-	externalNames.forEach((name) => {
+	for (const name of externalNames) {
 		const oldDep = oldExternalMap[name];
 		const newDep = newExternalMap[name];
 
@@ -592,7 +592,7 @@ export async function compareAndExpandManifestDependencies(
 		) {
 			modified.push({ modName: newDep.name });
 		}
-	});
+	}
 
 	return {
 		removed: removed,
@@ -643,18 +643,18 @@ export async function getVersionManifest(
  * Cleans up a file's display name, and returns the version. Works for all tested mods!
  * @param version The filename/version to cleanup.
  */
-export function cleanupVersion(version?: string): string {
-	if (!version) return "";
+export function cleanupVersion(filename?: string): string {
+	if (!filename) return "";
 
-	if (!version.replace(/[\d+.?]+/g, "")) return version;
+	if (!filename.replace(/[\d+.?]+/g, "")) return filename;
 
-	version = version.replace(/1\.12\.2|1\.12|\.jar/g, "");
+	const version = filename.replace(/1\.12\.2|1\.12|\.jar/g, "");
 	const list = version.match(/[\d+.?]+/g);
 	if (!list) return version;
 
 	if (list.at(-1) === "0") return version;
 
-	return list.at(-1)!;
+	return list.at(-1) ?? "";
 }
 
 const issueURLCache: Map<number, string> = new Map<number, string>();
@@ -689,10 +689,10 @@ export async function getIssueURLs(): Promise<void> {
 				return response.data;
 			},
 		);
-		issues.forEach((issue) => {
+		for (const issue of issues) {
 			if (!issueURLCache.has(issue.number))
 				issueURLCache.set(issue.number, issue.html_url);
-		});
+		}
 	} catch (e) {
 		logError(
 			"Failed to get all Issue URLs of Repo. This may be because there are no issues, or because of rate limits.",
@@ -766,10 +766,10 @@ export async function getCommitAuthors(): Promise<void> {
 				return response.data;
 			},
 		);
-		commits.forEach((commit) => {
+		for (const commit of commits) {
 			if (!commitAuthorCache.has(commit.sha))
 				commitAuthorCache.set(commit.sha, commit.author?.login ?? "");
-		});
+		}
 	} catch (e) {
 		logError(
 			"Failed to get all Commit Authors of Repo. This may be because there are no commits, or because of rate limits.",

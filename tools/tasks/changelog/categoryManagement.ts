@@ -7,9 +7,9 @@ import { categories } from "./definitions.ts";
 
 export function categoriesSetup(): void {
 	// Initialize Category Lists
-	categories.forEach((categoryKey) => {
+	for (const categoryKey of categories) {
 		initializeCategorySection(categoryKey);
-	});
+	}
 }
 
 /**
@@ -18,8 +18,8 @@ export function categoriesSetup(): void {
  */
 function initializeCategorySection(category: Category): void {
 	const categorySection = new Map<SubCategory, ChangelogMessage[]>();
-	category.subCategories.forEach((subCategory) => {
+	for (const subCategory of category.subCategories) {
 		categorySection.set(subCategory, []);
-	});
+	}
 	category.changelogSection = categorySection;
 }

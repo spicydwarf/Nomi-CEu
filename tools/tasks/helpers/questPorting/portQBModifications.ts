@@ -31,6 +31,12 @@ let data: PortQBData;
 const dmp = new DiffMatchPatch();
 const taskKey = "tasks";
 
+const OPERATION_FORMATS: Record<Operation, string> = {
+	add: "Addition",
+	remove: "Removal",
+	replace: "Modification",
+};
+
 export function setupModifications(dataIn: PortQBData): void {
 	data = dataIn;
 }
@@ -89,15 +95,7 @@ function getSimpleFormattedParserName(
 }
 
 function formatOp(operation: Operation): string {
-	switch (operation) {
-		case "add":
-			return "Addition";
-		default:
-			return "Modification";
-
-		case "remove":
-			return "Removal";
-	}
+	return OPERATION_FORMATS[operation];
 }
 
 function findAllParsers(modify: Modified): {
@@ -111,7 +109,7 @@ function findAllParsers(modify: Modified): {
 	const foundSimpleParserIds = new Set<string>();
 	for (const change of modify.change) {
 		const pathList = change.path.map((path) =>
-			typeof path === "number" ? path.toString() : path.split(":")[0]!,
+			typeof path === "number" ? path.toString() : (path.split(":")[0] ?? ""),
 		);
 
 		const path = pathList.join("/");
@@ -398,11 +396,11 @@ const modifyTasks = async (
 
 	// Sort Changes into Map of Index to Changes
 	const changes = new Map<number, ChangeAndPath[]>();
-	changeAndPaths.forEach((change) => {
+	for (const change of changeAndPaths) {
 		const index = getIndex(change.path, taskKey);
 		if (!changes.has(index)) changes.set(index, [change]);
 		else changes.get(index)?.push(change);
-	});
+	}
 
 	for (const entry of changes.entries()) {
 		const [index, changes] = entry;
@@ -410,14 +408,17 @@ const modifyTasks = async (
 		if (index < 0)
 			throw new Error("Invalid Path! Report to the Core Devs of Nomi-CEu!");
 
-		const change = changes[0]!;
-
 		// Are we adding/removing a whole task?
-		if (changes.length === 1 && isAddingOrRemovingComplexTask(change.path)) {
+		if (
+			changes.length === 1 &&
+			changes[0] &&
+			isAddingOrRemovingComplexTask(changes[0].path)
+		) {
 			let task: Task;
+			const change = changes[0];
 
 			if (change.change.op === "add") {
-				task = newTasks[change.change.path.at(-1) ?? "0:10"]!;
+				task = newTasks[change.change.path.at(-1) ?? "0:10"] as Task;
 			} else {
 				const foundTask = toModify.get(index);
 				if (!foundTask) {
@@ -459,7 +460,7 @@ const modifyTasks = async (
 
 		// Modification of a Task
 		const oldTask = Object.values(oldTasks)[index];
-		const newTask = Object.values(newTasks)[index]!;
+		const newTask = Object.values(newTasks)[index] as Task;
 		let task = toModify.get(index);
 		if (same) {
 			if (!task) {
@@ -802,7 +803,7 @@ function isAddingOrRemovingComplexTask(path: string[]): boolean {
 function getIndex(path: string[], pathKey: string): number {
 	const index = path.indexOf(pathKey) + 1;
 	if (index === 0 || index >= path.length) return -1; // indexOf returns -1 if not found, +1 = 0
-	const num = Number.parseInt(path[index]!);
+	const num = Number.parseInt(path[index] as string);
 	if (Number.isNaN(num)) return -1;
 	return num;
 }
@@ -853,11 +854,11 @@ export const modificationParsers = [
 			applyTogether: () => true,
 			formattedName: (changes) => {
 				const result: string[] = [];
-				changes = lodash.uniqBy(changes, (change) =>
+				const uniqueChanges = lodash.uniqBy(changes, (change) =>
 					getIndex(change.path, taskKey),
 				);
 
-				for (const change of changes) {
+				for (const change of uniqueChanges) {
 					if (
 						!isAddingOrRemovingComplexTask(change.path) &&
 						change.change.op !== "replace"

@@ -8,7 +8,6 @@ import {
 	type ExpandedMessage,
 	type FixUpInfo,
 	type IgnoreInfo,
-	type IgnoreLogic,
 	Ignored,
 	type ModInfo,
 	type ParsedModInfo,
@@ -346,7 +345,7 @@ export async function parseDetails(
 			);
 		}
 	} else {
-		sortedCategories.forEach((category) => {
+		for (const category of sortedCategories) {
 			const subCategory = findSubCategory(commitBody, category);
 
 			category.changelogSection?.get(subCategory)?.push({
@@ -354,7 +353,7 @@ export async function parseDetails(
 				commitObject: commitObject,
 				subChangelogMessages: subMessages,
 			});
-		});
+		}
 	}
 }
 

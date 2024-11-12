@@ -62,14 +62,14 @@ export default async function generateModChanges(
 
 	for (const commit of commitList) {
 		const projectIDs = await getChangedProjectIDs(commit.hash);
-		projectIDs.forEach((id) => {
+		for (const id of projectIDs) {
 			if (projectIDsToCommits.has(id))
 				projectIDsToCommits.get(id)?.push(commit);
 			else projectIDsToCommits.set(id, [commit]);
-		});
+		}
 	}
 
-	[
+	const blocks = [
 		{
 			allocation: modChangesAllocations.added,
 			list: comparisonResult.added,
@@ -82,7 +82,9 @@ export default async function generateModChanges(
 			allocation: modChangesAllocations.removed,
 			list: comparisonResult.removed,
 		},
-	].forEach((block) => {
+	];
+
+	for (const block of blocks) {
 		if (block.list.length === 0) {
 			return;
 		}
@@ -92,7 +94,7 @@ export default async function generateModChanges(
 			.sort()
 			.map((name) => name);
 
-		list.forEach((info) => {
+		for (const info of list) {
 			let commits: Commit[] | undefined = undefined;
 			if (info.projectID && projectIDsToCommits.has(info.projectID)) {
 				commits = projectIDsToCommits.get(info.projectID) ?? [];
@@ -105,8 +107,8 @@ export default async function generateModChanges(
 				?.push(
 					getModChangeMessage(info, block.allocation.template, data, commits),
 				);
-		});
-	});
+		}
+	}
 }
 
 /**
@@ -171,12 +173,13 @@ async function getChangedProjectIDs(sha: string): Promise<number[]> {
 	}
 
 	// Add all unique IDs from both diff lists
-	change.arr1Unique.forEach((file) => {
+	for (const file of change.arr1Unique) {
 		if (!projectIDs.includes(file.projectID)) projectIDs.push(file.projectID);
-	});
-	change.arr2Unique.forEach((file) => {
+	}
+
+	for (const file of change.arr2Unique) {
 		if (!projectIDs.includes(file.projectID)) projectIDs.push(file.projectID);
-	});
+	}
 
 	return projectIDs;
 }

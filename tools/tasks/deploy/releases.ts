@@ -26,11 +26,11 @@ async function deployReleases(): Promise<void> {
 	/**
 	 * Obligatory variable check.
 	 */
-	variablesToCheck.forEach((vari) => {
+	for (const vari of variablesToCheck) {
 		if (!process.env[vari]) {
 			throw new Error(`Environmental variable ${vari} is unset.`);
 		}
-	});
+	}
 
 	const body = makeArtifactNameBody(modpackManifest.name);
 	const files = ["client", "server", "lang"].map((file) =>
@@ -40,12 +40,12 @@ async function deployReleases(): Promise<void> {
 	/**
 	 * Obligatory file check.
 	 */
-	files.forEach((file) => {
+	for (const file of files) {
 		const path = upath.join(buildConfig.buildDestinationDirectory, file);
 		if (!fs.existsSync(path)) {
 			throw new Error(`File ${path} doesn't exist!`);
 		}
-	});
+	}
 
 	const [, owner, repoName] =
 		process.env.GITHUB_REPOSITORY?.match(/(.+)\/(.+)/) ?? [];

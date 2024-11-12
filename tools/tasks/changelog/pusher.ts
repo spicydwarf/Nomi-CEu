@@ -283,7 +283,7 @@ export async function formatMessage(
 	}
 
 	if (commits.length === 1) {
-		const commit = commits[0]!;
+		const commit = commits[0] as Commit;
 		const shortSHA = commit.hash.substring(0, 7);
 		const formattedCommit = `[\`${shortSHA}\`](${repoLink}commit/${commit.hash})`;
 		const author = await formatAuthor(commit);
@@ -307,22 +307,22 @@ export async function formatMessage(
 	sortCommitList(commits, (commit) => commit);
 
 	// Co-Authors for Each Commit, Format Commits
-	commits.forEach((commit) => {
-		if (processedSHAs.has(commit.hash)) return;
+	for (const commit of commits) {
+		if (processedSHAs.has(commit.hash)) continue;
 		formattedCommits.push(
 			`[\`${commit.hash.substring(0, 7)}\`](${repoLink}commit/${commit.hash})`,
 		);
 		processedSHAs.add(commit.hash);
 
 		const authors = data.coAuthorList.get(commit.hash);
-		if (!authors || authors.length === 0) return;
+		if (!authors || authors.length === 0) continue;
 
 		retrievedAuthors.push(
 			...authors.map((author) => {
 				return { commit, name: `@${author.name}`, email: author.email };
 			}),
 		);
-	});
+	}
 
 	const processedAuthors: Set<string> = new Set<string>();
 	const processedEmails: Set<string> = new Set<string>();
@@ -332,7 +332,8 @@ export async function formatMessage(
 		(author) => author.commit,
 		(a, b) => a.name.localeCompare(b.name),
 	);
-	retrievedAuthors.forEach((pAuthor) => {
+
+	for (const pAuthor of retrievedAuthors) {
 		// Author
 		if (
 			!processedAuthors.has(pAuthor.name) &&
@@ -342,7 +343,7 @@ export async function formatMessage(
 			processedAuthors.add(pAuthor.name);
 			processedEmails.add(pAuthor.email);
 		}
-	});
+	}
 
 	// Delete all Formatted Commits after MaxIncludeCommits elements, replace with '...'
 	if (formattedCommits.length > maxIncludeCommits) {
@@ -373,13 +374,13 @@ async function formatCommit(commit: Commit): Promise<string> {
  * @param changelog The list to transform all PR/Issue Tags of.
  */
 async function transformAllIssueURLs(changelog: string[]) {
-	const promises: Promise<string>[] = [];
+	const promises: Promise<void>[] = [];
 	for (const [i, categoryFormatted] of changelog.entries()) {
 		// Transform PR and/or Issue tags into a link.
 		promises.push(
-			transformTags(categoryFormatted).then(
-				(categoryTransformed) => (changelog[i] = categoryTransformed),
-			),
+			transformTags(categoryFormatted).then((categoryTransformed) => {
+				changelog[i] = categoryTransformed;
+			}),
 		);
 	}
 	// Apply all Link Changes
@@ -390,10 +391,12 @@ async function transformAllIssueURLs(changelog: string[]) {
  * Transforms PR/Issue Tags into Links.
  */
 async function transformTags(message: string): Promise<string> {
-	const promises: Promise<string>[] = [];
+	const promises: Promise<void>[] = [];
 	const transformed: Set<number> = new Set<number>();
-	if (message.search(/#\d+/) !== -1) {
-		const matched = message.match(/#\d+/g) ?? [];
+
+	let result = message;
+	if (result.search(/#\d+/) !== -1) {
+		const matched = result.match(/#\d+/g) ?? [];
 		for (const match of matched) {
 			// Extract digits
 			const digitsMatch = match.match(/\d+/);
@@ -405,10 +408,9 @@ async function transformTags(message: string): Promise<string> {
 
 			// Get PR/Issue Info (PRs are listed in the Issue API Endpoint)
 			promises.push(
-				getIssueURL(digits).then(
-					(url) =>
-						(message = message.replaceAll(match, `[#${digits}](${url})`)),
-				),
+				getIssueURL(digits).then((url) => {
+					result = result.replaceAll(match, `[#${digits}](${url})`);
+				}),
 			);
 		}
 	}

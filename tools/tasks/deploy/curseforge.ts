@@ -160,11 +160,11 @@ export async function deployCurseForge(): Promise<void> {
 	/*
 	 * Obligatory variable check.
 	 */
-	["GITHUB_TAG", ...variablesToCheck].forEach((vari) => {
+	for (const vari of ["GITHUB_TAG", ...variablesToCheck]) {
 		if (!process.env[vari]) {
 			throw new Error(`Environmental variable ${vari} is unset.`);
 		}
-	});
+	}
 
 	const displayName = process.env.GITHUB_TAG ?? "";
 

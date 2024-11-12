@@ -207,7 +207,7 @@ async function fetchModList() {
  */
 function formatModList(modList: ModFileInfo[]): string {
 	const output: string[] = [];
-	modList.forEach((modFile) => {
+	for (const modFile of modList) {
 		output.push(dedent`
 			<tr>
 				<td><a href="${modFile.modInfo.links.websiteUrl}">${modFile.modInfo.name}</a></td>
@@ -217,7 +217,7 @@ function formatModList(modList: ModFileInfo[]): string {
 				<td>${modFile.modInfo.authors.map((author) => `<a href=${author.url}>${author.name}</a>`).join(", ")}</td>
 			</tr>
 		`);
-	});
+	}
 	return output.join("\n");
 }
 
