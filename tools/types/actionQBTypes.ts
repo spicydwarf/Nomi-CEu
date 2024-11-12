@@ -1,6 +1,7 @@
-import type { Operation } from "just-diff";
 import type { Matcher } from "picomatch";
 import type { Quest } from "./bqQuestBook.ts";
+
+export type Operation = "add" | "remove" | "replace";
 
 // QB Porting From.
 export type PortingType = "NORMAL" | "EXPERT";

@@ -1,7 +1,6 @@
 import fs from "node:fs";
 import path from "node:path";
 import { input, select } from "@inquirer/prompts";
-import { diff } from "just-diff";
 import lodash from "lodash";
 import sortKeys from "sort-keys";
 import colors from "yoctocolors";
@@ -24,6 +23,7 @@ import type { Quest, QuestBook, QuestVisibility } from "#types/bqQuestBook.ts";
 import { logError, logInfo, logWarn } from "#utils/log.ts";
 import { getUniqueToArray } from "#utils/util.ts";
 import type PortQBData from "./questPorting/portQBData.ts";
+import { compareObjects } from "#utils/diff.js";
 
 let data: PortQBData;
 
@@ -442,7 +442,7 @@ export function getChanged(current: Quest[], old: Quest[]): Changed {
 }
 
 export function getDifferences(old: Quest, current: Quest): QuestChange[] {
-	const initialDiff = diff(old, current) as QuestChange[];
+	const initialDiff = compareObjects(old, current) as QuestChange[];
 
 	if (initialDiff.length === 0) return [];
 

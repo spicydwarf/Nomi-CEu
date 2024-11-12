@@ -1,8 +1,5 @@
 import { editor, input, select } from "@inquirer/prompts";
 import dedent from "dedent-js";
-import DiffMatchPatch from "diff-match-patch";
-import fakeDiff from "fake-diff";
-import type { Operation } from "just-diff";
 import lodash from "lodash";
 import picomatch from "picomatch";
 import colors from "yoctocolors";
@@ -19,22 +16,23 @@ import {
 	type SimpleLogic,
 	type TaskDifferentSolution,
 	type YesIgnoreNo,
+	type Operation,
 } from "#types/actionQBTypes.ts";
 import type { Quest, Task } from "#types/bqQuestBook.ts";
 import { logError, logInfo, logNotImportant, logWarn } from "#utils/log.ts";
 import type { ArrayUnique } from "#utils/util.ts";
 import { booleanSelect, findQuest, id, name } from "../actionQBUtils.ts";
 import type PortQBData from "./portQBData.ts";
+import { applyChanges, formatDiff } from "#utils/diff.js";
 
 let data: PortQBData;
-const dmp = new DiffMatchPatch();
 const taskKey = "tasks";
 
-const OPERATION_FORMATS: Record<Operation, string> = {
+const OPERATION_FORMATS = {
 	add: "Addition",
 	remove: "Removal",
 	replace: "Modification",
-};
+} as const satisfies Record<Operation, string>;
 
 export function setupModifications(dataIn: PortQBData): void {
 	data = dataIn;
@@ -223,15 +221,12 @@ const modifyDesc = async (
 		questToModify["properties:10"]["betterquesting:10"]["desc:8"];
 
 	logInfo(colors.bold("Change in Source Quest:"));
-	console.log(fakeDiff(oldQuest, newQuest));
-	const apply = dmp.patch_apply(
-		dmp.patch_make(oldQuest, newQuest),
-		originalQuest,
-	)[0];
+	console.log(formatDiff(oldQuest, newQuest));
+	const apply = applyChanges(oldQuest, newQuest, originalQuest);
 	logInfo(colors.bold("If Applied:"));
-	console.log(fakeDiff(originalQuest, apply));
+	console.log(formatDiff(originalQuest, apply));
 	logInfo(colors.bold("If Replaced:"));
-	console.log(fakeDiff(originalQuest, newQuest));
+	console.log(formatDiff(originalQuest, newQuest));
 
 	const applyMode = (await select({
 		message: "How Should we Apply this Change to the Description?",
@@ -309,10 +304,12 @@ const modifyIcon = async (
 	const newIconString = JSON.stringify(newIcon, null, 2) ?? "";
 
 	logInfo(colors.bold("Change in Source Quest:"));
-	console.log(fakeDiff(JSON.stringify(oldIcon, null, 2) ?? "", newIconString));
+	console.log(
+		formatDiff(JSON.stringify(oldIcon, null, 2) ?? "", newIconString),
+	);
 	logInfo(colors.bold("If Applied to Current Quest:"));
 	console.log(
-		fakeDiff(JSON.stringify(currentIcon, null, 2) ?? "", newIconString),
+		formatDiff(JSON.stringify(currentIcon, null, 2) ?? "", newIconString),
 	);
 
 	if (!(await booleanSelect("Should we Apply This Icon Change?"))) {
@@ -343,7 +340,7 @@ const modifyTasks = async (
 		);
 		logInfo(colors.bold("Change:"));
 		console.log(
-			fakeDiff(
+			formatDiff(
 				JSON.stringify(Object.values(currentTasks), null, 2) ?? "",
 				JSON.stringify(Object.values(oldTasks), null, 2) ?? "",
 			),
@@ -471,7 +468,7 @@ const modifyTasks = async (
 			}
 			logInfo(colors.bold("Change:"));
 			console.log(
-				fakeDiff(
+				formatDiff(
 					JSON.stringify(task, null, 2) ?? "",
 					JSON.stringify(newTask, null, 2) ?? "",
 				),
@@ -524,7 +521,7 @@ const modifyTasks = async (
 			);
 			logInfo(colors.bold("Difference:"));
 			console.log(
-				fakeDiff(
+				formatDiff(
 					JSON.stringify(oldTask, null, 2) ?? "",
 					JSON.stringify(task, null, 2) ?? "",
 				),
@@ -566,15 +563,12 @@ const modifyTasks = async (
 		const currentTaskString = JSON.stringify(confirmedTask, null, 2) ?? "";
 
 		logInfo(colors.bold("Change in Source Quest:"));
-		console.log(fakeDiff(oldTaskString, newTaskString));
-		const apply = dmp.patch_apply(
-			dmp.patch_make(oldTaskString, newTaskString),
-			currentTaskString,
-		)[0];
+		console.log(formatDiff(oldTaskString, newTaskString));
+		const apply = applyChanges(oldTaskString, newTaskString, currentTaskString);
 		logInfo(colors.bold("If Applied:"));
-		console.log(fakeDiff(currentTaskString, apply));
+		console.log(formatDiff(currentTaskString, apply));
 		logInfo(colors.bold("If Replaced:"));
-		console.log(fakeDiff(currentTaskString, newTaskString));
+		console.log(formatDiff(currentTaskString, newTaskString));
 
 		const applyMode = (await select({
 			message: "How Should we Apply this Task Change?",
@@ -772,14 +766,14 @@ const modifyGeneral = async (
 
 	logInfo(colors.bold("Change in Source Quest:"));
 	console.log(
-		fakeDiff(
+		formatDiff(
 			JSON.stringify(lodash.get(modify.oldQuest, change.path)) ?? "",
 			newValueAsString,
 		),
 	);
 	logInfo(colors.bold("Change if Applied:"));
 	console.log(
-		fakeDiff(
+		formatDiff(
 			JSON.stringify(lodash.get(questToModify, change.path)) ?? "",
 			newValueAsString,
 		),
