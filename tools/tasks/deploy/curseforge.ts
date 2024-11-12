@@ -4,7 +4,6 @@ import fs from "node:fs";
 import path from "node:path";
 import * as core from "@actions/core";
 import type { AxiosRequestConfig } from "axios";
-import { filesize } from "filesize";
 import mustache from "mustache";
 import sanitize from "sanitize-filename";
 import buildConfig from "#buildConfig";
@@ -16,6 +15,7 @@ import {
 import type { CurseForgeLegacyMCVersion } from "#types/curseForge.ts";
 import logInfo from "#utils/log.ts";
 import {
+	filesize,
 	getAxios,
 	isEnvVariableSet,
 	makeArtifactNameBody,
