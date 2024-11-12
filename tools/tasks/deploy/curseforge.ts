@@ -12,7 +12,7 @@ import {
 	inputToDeployReleaseTypes,
 } from "#types/changelogTypes.ts";
 import type { CurseForgeLegacyMCVersion } from "#types/curseForge.ts";
-import logInfo from "#utils/log.ts";
+import { logInfo } from "#utils/log.ts";
 import {
 	filesize,
 	getAxios,

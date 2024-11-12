@@ -1,10 +1,10 @@
 import fs from "node:fs";
 import path from "node:path";
 import { input, select } from "@inquirer/prompts";
-import colors from "colors";
 import { diff } from "just-diff";
 import lodash from "lodash";
 import sortKeys from "sort-keys";
+import colors from "yoctocolors";
 import {
 	configFolder,
 	configOverridesFolder,
@@ -21,7 +21,7 @@ import type {
 	YesIgnoreNo,
 } from "#types/actionQBTypes.ts";
 import type { Quest, QuestBook, QuestVisibility } from "#types/bqQuestBook.ts";
-import logInfo, { logError, logWarn } from "#utils/log.ts";
+import { logError, logInfo, logWarn } from "#utils/log.ts";
 import { getUniqueToArray } from "#utils/util.ts";
 import type PortQBData from "./questPorting/portQBData.ts";
 

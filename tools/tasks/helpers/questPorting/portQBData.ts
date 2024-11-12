@@ -8,7 +8,7 @@ import type {
 	SourceOption,
 } from "#types/actionQBTypes.ts";
 import type { Quest, QuestLine } from "#types/bqQuestBook.ts";
-import logInfo from "#utils/log.ts";
+import { logInfo } from "#utils/log.ts";
 import { git, listRemotes } from "#utils/util.ts";
 import {
 	booleanSelect,

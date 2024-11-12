@@ -1,6 +1,6 @@
 import { setOutput } from "@actions/core";
 import { modpackManifest } from "#globals";
-import logInfo from "#utils/log.js";
+import { logInfo } from "#utils/log.js";
 import { makeArtifactNameBody, sanitizeFilename } from "#utils/util.ts";
 
 export async function makeArtifactNames(): Promise<void> {

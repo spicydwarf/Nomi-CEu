@@ -1,5 +1,5 @@
 import type { Quest } from "#types/bqQuestBook.ts";
-import logInfo, { logNotImportant } from "../../../utils/log.ts";
+import { logInfo, logNotImportant } from "../../../utils/log.ts";
 import {
 	booleanSelect,
 	dependencies,

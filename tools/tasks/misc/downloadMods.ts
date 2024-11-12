@@ -2,7 +2,7 @@ import path from "node:path";
 import { modDestDirectory, modpackManifest } from "#globals";
 import { ensureDir, removeDir } from "#utils/build.js";
 import { fetchMods } from "#utils/curseForgeAPI.ts";
-import logInfo from "#utils/log.ts";
+import { logInfo } from "#utils/log.ts";
 import { parallel, series } from "#utils/util.ts";
 
 async function modCleanUp() {

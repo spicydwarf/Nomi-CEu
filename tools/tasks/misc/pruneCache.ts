@@ -6,7 +6,7 @@ import buildConfig from "#buildConfig";
 import { modpackManifest } from "#globals";
 import type { ForgeProfile } from "#types/forgeProfile.ts";
 import { fetchFileInfo } from "#utils/curseForgeAPI.ts";
-import logInfo from "#utils/log.ts";
+import { logInfo } from "#utils/log.ts";
 import { FORGE_MAVEN, getForgeJar, getVersionManifest } from "#utils/util.ts";
 
 /**

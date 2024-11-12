@@ -1,11 +1,11 @@
 import { editor, input, select } from "@inquirer/prompts";
-import colors from "colors";
 import dedent from "dedent-js";
 import DiffMatchPatch from "diff-match-patch";
 import fakeDiff from "fake-diff";
 import type { Operation } from "just-diff";
 import lodash from "lodash";
 import picomatch from "picomatch";
+import colors from "yoctocolors";
 import {
 	type BunchedParserPath,
 	type ChangeAndPath,
@@ -21,7 +21,7 @@ import {
 	type YesIgnoreNo,
 } from "#types/actionQBTypes.ts";
 import type { Quest, Task } from "#types/bqQuestBook.ts";
-import logInfo, { logError, logNotImportant, logWarn } from "#utils/log.ts";
+import { logError, logInfo, logNotImportant, logWarn } from "#utils/log.ts";
 import type { ArrayUnique } from "#utils/util.ts";
 import { booleanSelect, findQuest, id, name } from "../actionQBUtils.ts";
 import type PortQBData from "./portQBData.ts";

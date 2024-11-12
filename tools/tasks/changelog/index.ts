@@ -3,7 +3,7 @@ import path from "node:path";
 import { marked } from "marked";
 import buildConfig from "#buildConfig";
 import { rootDirectory } from "#globals";
-import logInfo from "#utils/log.ts";
+import { logInfo } from "#utils/log.ts";
 import { categoriesSetup } from "./categoryManagement.ts";
 import ChangelogData from "./changelogData.ts";
 import { changelogParsers } from "./definitions.ts";

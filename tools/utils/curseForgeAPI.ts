@@ -8,7 +8,7 @@ import type {
 } from "#types/curseForge.ts";
 import type { FileDef } from "#types/fileDef.ts";
 import type { ModpackManifestFile } from "#types/modpackManifest.ts";
-import logInfo, { logError, logWarn } from "./log.ts";
+import { logError, logInfo, logWarn } from "./log.ts";
 import {
 	RetrievedFileDefReason,
 	downloadOrRetrieveFileDef,

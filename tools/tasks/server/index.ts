@@ -12,7 +12,7 @@ import {
 } from "#globals";
 import type { FileDef } from "#types/fileDef.ts";
 import type { ForgeProfile } from "#types/forgeProfile.ts";
-import logInfo, { logWarn } from "#utils/log.ts";
+import { logInfo, logWarn } from "#utils/log.ts";
 import {
 	downloadOrRetrieveFileDef,
 	getForgeJar,

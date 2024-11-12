@@ -2,7 +2,7 @@ import fs from "node:fs";
 import path from "node:path";
 import { rootDirectory } from "#globals";
 import type { Quest, QuestBook } from "#types/bqQuestBook.ts";
-import logInfo, { logError, logNotImportant } from "#utils/log.ts";
+import { logError, logInfo, logNotImportant } from "#utils/log.ts";
 import { getFileAtRevision, git } from "#utils/util.ts";
 import { getChanged, id, save, setupUtils } from "../actionQBUtils.ts";
 import PortQBData from "./portQBData.ts";

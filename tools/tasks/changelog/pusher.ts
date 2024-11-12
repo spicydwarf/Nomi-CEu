@@ -3,7 +3,7 @@ import type {
 	ChangelogMessage,
 	Commit,
 } from "#types/changelogTypes.ts";
-import logInfo from "#utils/log.ts";
+import { logInfo } from "#utils/log.ts";
 import {
 	formatAuthor,
 	getCommitAuthors,

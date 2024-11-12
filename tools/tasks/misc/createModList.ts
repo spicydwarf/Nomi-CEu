@@ -10,7 +10,7 @@ import {
 	fetchProject,
 	fetchProjectsBulk,
 } from "#utils/curseForgeAPI.ts";
-import logInfo from "#utils/log.ts";
+import { logInfo } from "#utils/log.ts";
 import { checkGitTag, getFileAtRevision } from "#utils/util.ts";
 
 export interface ModFileInfo {

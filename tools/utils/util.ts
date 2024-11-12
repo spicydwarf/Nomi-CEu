@@ -40,7 +40,7 @@ import {
 	fetchProjectsBulk,
 } from "./curseForgeAPI.ts";
 import { compareBufferToHashDef } from "./hashes.ts";
-import logInfo, { logError, logWarn } from "./log.ts";
+import { logError, logInfo, logWarn } from "./log.ts";
 
 const LIBRARY_REG = /^(.+?):(.+?):(.+?)$/;
 

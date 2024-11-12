@@ -12,7 +12,7 @@ import {
 } from "#globals";
 import type { FileDef } from "#types/fileDef.ts";
 import { copyFiles, ensureDir, removeDir } from "#utils/build.js";
-import logInfo, { logError } from "#utils/log.ts";
+import { logError, logInfo } from "#utils/log.ts";
 import {
 	downloadFileDef,
 	downloadOrRetrieveFileDef,

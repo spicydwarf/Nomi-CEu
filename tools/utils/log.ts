@@ -1,18 +1,28 @@
-import colors from "colors";
-import logger from "fancy-log";
+import colors from "yoctocolors";
 
-export function logNotImportant(message: string): void {
-	logger.info(colors.dim(message));
+const TIME_FORMAT = new Intl.DateTimeFormat("en-US", {
+	hour: "numeric",
+	minute: "numeric",
+	second: "numeric",
+	hour12: false,
+});
+
+function withTimestamp(str: string) {
+	return `[${TIME_FORMAT.format(new Date())}] ${str}`;
 }
 
-export default function logInfo(message: string): void {
-	logger.info(message);
+export function logNotImportant(message: string): void {
+	console.info(withTimestamp(colors.dim(message)));
+}
+
+export function logInfo(message: string): void {
+	console.info(withTimestamp(message));
 }
 
 export function logWarn(message: string): void {
-	logger.warn(colors.yellow(message));
+	console.warn(withTimestamp(colors.yellow(message)));
 }
 
 export function logError(message: string): void {
-	logger.error(colors.red(colors.bold(message)));
+	console.error(withTimestamp(colors.red(colors.bold(message))));
 }

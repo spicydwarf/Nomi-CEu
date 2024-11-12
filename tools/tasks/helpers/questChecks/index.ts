@@ -2,8 +2,8 @@ import fs from "node:fs";
 import path from "node:path";
 import * as core from "@actions/core";
 import { input, select } from "@inquirer/prompts";
-import colors from "colors";
 import lodash from "lodash";
+import colors from "yoctocolors";
 import { rootDirectory } from "#globals";
 import {
 	cfgExpertPath,
@@ -18,7 +18,7 @@ import {
 } from "#tasks/helpers/actionQBUtils.ts";
 import type { SourceOption } from "#types/actionQBTypes.ts";
 import type { Quest, QuestBook, QuestLine } from "#types/bqQuestBook.ts";
-import logInfo, { logWarn } from "#utils/log.ts";
+import { logInfo, logWarn } from "#utils/log.ts";
 import { isEnvVariableSet } from "#utils/util.ts";
 
 const isAvailableForFormatting = /[0-9a-ek-or]/;
