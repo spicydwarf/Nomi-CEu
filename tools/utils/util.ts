@@ -18,7 +18,6 @@ import axiosRetry, {
 	type IAxiosRetryConfigExtended,
 	namespace,
 } from "axios-retry";
-import { sha1 } from "hash-wasm";
 import lodash from "lodash";
 import { type SimpleGit, pathspec, simpleGit } from "simple-git";
 import buildConfig from "#buildConfig";
@@ -39,7 +38,7 @@ import {
 	fetchProject,
 	fetchProjectsBulk,
 } from "./curseForgeAPI.ts";
-import { compareBufferToHashDef } from "./hashes.ts";
+import { compareBufferToHashDef, sha1 } from "./hashes.ts";
 import { logError, logInfo, logWarn } from "./log.ts";
 
 const LIBRARY_REG = /^(.+?):(.+?):(.+?)$/;

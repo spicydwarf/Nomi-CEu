@@ -1,4 +1,4 @@
-import { md5, sha1 } from "hash-wasm";
+import { createHash } from "node:crypto";
 import type { HashDef } from "#types/hashDef.ts";
 
 /**
@@ -6,22 +6,28 @@ import type { HashDef } from "#types/hashDef.ts";
  *
  * This is what CurseForge and Forge are using to check files.
  */
-const performSha1 = (inputBuffer: Buffer): Promise<string> => {
-	return sha1(inputBuffer);
-};
+export async function sha1(data: string | Buffer): Promise<string> {
+	const hash = createHash("sha1");
+
+	hash.update(typeof data === "string" ? Buffer.from(data) : data);
+
+	return hash.digest("hex");
+}
 
 /**
  * Returns the hash sum of bytes of given bytes using MD5.
  *
  * This is what CF is using to check files.
  */
-const performMd5 = (inputBuffer: Buffer): Promise<string> => {
-	return md5(inputBuffer);
-};
+export async function md5(data: string | Buffer): Promise<string> {
+	const hash = createHash("md5");
+	hash.update(typeof data === "string" ? Buffer.from(data) : data);
+	return hash.digest("hex");
+}
 
-const hashFuncs: { [key: string]: (buffer: Buffer) => Promise<string> } = {
-	sha1: performSha1,
-	md5: performMd5,
+const hashFuncs: Record<string, (data: string | Buffer) => Promise<string>> = {
+	sha1,
+	md5,
 };
 
 /**

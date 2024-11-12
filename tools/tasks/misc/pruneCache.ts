@@ -1,11 +1,11 @@
 import fs from "node:fs";
 import path from "node:path";
-import { sha1 } from "hash-wasm";
 import unzip from "unzipper";
 import buildConfig from "#buildConfig";
 import { modpackManifest } from "#globals";
 import type { ForgeProfile } from "#types/forgeProfile.ts";
 import { fetchFileInfo } from "#utils/curseForgeAPI.ts";
+import { sha1 } from "#utils/hashes.js";
 import { logInfo } from "#utils/log.ts";
 import { FORGE_MAVEN, getForgeJar, getVersionManifest } from "#utils/util.ts";
 
