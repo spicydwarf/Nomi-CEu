@@ -1,6 +1,5 @@
 import fs from "node:fs";
 import path from "node:path";
-import mustache from "mustache";
 import buildConfig from "#buildConfig";
 import {
 	modDestDirectory,
@@ -132,17 +131,9 @@ async function fetchOrMakeChangelog() {
 	}
 	if (isEnvVariableSet("CHANGELOG_BRANCH")) {
 		logInfo("Using Changelog Files from Branch.");
-		const url =
-			"https://raw.githubusercontent.com/Nomi-CEu/Nomi-CEu/{{ branch }}/{{ filename }}";
 		await downloadChangelogs(
-			mustache.render(url, {
-				branch: process.env.CHANGELOG_BRANCH,
-				filename: "CHANGELOG.md",
-			}),
-			mustache.render(url, {
-				branch: process.env.CHANGELOG_BRANCH,
-				filename: "CHANGELOG_CF.md",
-			}),
+			`https://raw.githubusercontent.com/Nomi-CEu/Nomi-CEu/${process.env.CHANGELOG_BRANCH}/CHANGELOG.md`,
+			`https://raw.githubusercontent.com/Nomi-CEu/Nomi-CEu/${process.env.CHANGELOG_BRANCH}/CHANGELOG_CF.md`,
 		);
 		return;
 	}
