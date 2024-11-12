@@ -1,6 +1,5 @@
-import fs from "node:fs";
-import { dest, series, src } from "gulp";
-import upath from "upath";
+import fs from "node:fs/promises";
+import path from "node:path";
 import buildConfig from "#buildConfig";
 import {
 	mmcDestDirectory,
@@ -8,37 +7,32 @@ import {
 	modpackManifest,
 	sharedDestDirectory,
 } from "#globals";
-import { promiseStream, shouldSkipChangelog } from "#utils/util.ts";
+import { copyFiles, ensureDir, removeDir } from "#utils/build.js";
+import { series, shouldSkipChangelog } from "#utils/util.ts";
 
 async function mmcCleanUp() {
-	if (fs.existsSync(mmcDestDirectory)) {
-		await fs.promises.rm(mmcDestDirectory, { recursive: true });
-	}
+	await removeDir(mmcDestDirectory);
 }
 
 /**
  * Checks and creates all necessary directories so we can build the MMC zip safely.
  */
 async function createMMCDirs() {
-	if (!fs.existsSync(mmcDestDirectory)) {
-		await fs.promises.mkdir(mmcDestDirectory, { recursive: true });
-	}
+	await ensureDir(mmcDestDirectory);
 }
 
 /**
  * Copies the update notes file.
  */
 async function copyMMCUpdateNotes() {
-	return promiseStream(
-		src("../UPDATENOTES.md", { allowEmpty: true }).pipe(dest(mmcDestDirectory)),
-	);
+	await copyFiles("../UPDATENOTES.md", mmcDestDirectory);
 }
 
 /**
  * Copies the license file.
  */
 async function copyMMCLicense() {
-	return promiseStream(src("../LICENSE").pipe(dest(mmcDestDirectory)));
+	await copyFiles("../LICENSE", mmcDestDirectory);
 }
 
 /**
@@ -47,10 +41,9 @@ async function copyMMCLicense() {
 async function copyMMCChangelog() {
 	if (shouldSkipChangelog()) return;
 
-	return promiseStream(
-		src(upath.join(buildConfig.buildDestinationDirectory, "CHANGELOG.md")).pipe(
-			dest(mmcDestDirectory),
-		),
+	await copyFiles(
+		path.join(buildConfig.buildDestinationDirectory, "CHANGELOG.md"),
+		mmcDestDirectory,
 	);
 }
 
@@ -58,25 +51,21 @@ async function copyMMCChangelog() {
  * Copies modpack overrides.
  */
 async function copyOverrides() {
-	return promiseStream(
-		src("**/*", {
-			resolveSymlinks: true,
-			encoding: false,
-			cwd: upath.join(sharedDestDirectory, "overrides"),
-		}).pipe(dest(upath.join(mmcDestDirectory, ".minecraft"))),
-	);
+	await copyFiles("**/*", path.join(mmcDestDirectory, ".minecraft"), {
+		cwd: path.join(sharedDestDirectory, "overrides"),
+	});
 }
 
 /**
  * Copies client & shared mods.
  */
 async function copyMMCModJars() {
-	return promiseStream(
-		src(["*", upath.join("client", "*")], {
+	await copyFiles(
+		["*", path.join("client", "*")],
+		path.join(mmcDestDirectory, ".minecraft", "mods"),
+		{
 			cwd: modDestDirectory,
-			resolveSymlinks: true,
-			encoding: false,
-		}).pipe(dest(upath.join(mmcDestDirectory, ".minecraft", "mods"))),
+		},
 	);
 }
 
@@ -87,8 +76,8 @@ async function createMMCConfig() {
 		name: modpackManifest.name,
 	};
 
-	return fs.promises.writeFile(
-		upath.join(mmcDestDirectory, "instance.cfg"),
+	await fs.writeFile(
+		path.join(mmcDestDirectory, "instance.cfg"),
 		Object.keys(cfg)
 			.map((key) => {
 				return `${key}=${cfg[key]}`;
@@ -133,8 +122,8 @@ async function createMMCManifest() {
 		});
 	}
 
-	return fs.promises.writeFile(
-		upath.join(mmcDestDirectory, "mmc-pack.json"),
+	await fs.writeFile(
+		path.join(mmcDestDirectory, "mmc-pack.json"),
 		JSON.stringify(manifest, null, "\t"),
 	);
 }

@@ -1,8 +1,6 @@
 import fs from "node:fs";
-import { deleteAsync } from "del";
-import gulp, { dest, src } from "gulp";
+import path from "node:path";
 import mustache from "mustache";
-import upath from "upath";
 import buildConfig from "#buildConfig";
 import {
 	modDestDirectory,
@@ -13,12 +11,13 @@ import {
 	tempDirectory,
 } from "#globals";
 import type { FileDef } from "#types/fileDef.ts";
-import logInfo from "#utils/log.ts";
+import { copyFiles, ensureDir, removeDir } from "#utils/build.js";
+import logInfo, { logError } from "#utils/log.ts";
 import {
 	downloadFileDef,
 	downloadOrRetrieveFileDef,
 	isEnvVariableSet,
-	promiseStream,
+	series,
 	shouldSkipChangelog,
 } from "#utils/util.ts";
 import { createBuildChangelog } from "../changelog/index.ts";
@@ -30,33 +29,28 @@ import { transformQuestBook } from "./quest.ts";
 import transformVersion from "./transformVersion.ts";
 
 async function sharedCleanUp() {
-	await deleteAsync(upath.join(sharedDestDirectory, "*"), { force: true });
-	await deleteAsync(upath.join(tempDirectory, "*"), { force: true });
+	await removeDir(sharedDestDirectory);
+	await removeDir(tempDirectory);
 }
 
 /**
  * Checks and creates all necessary directories so we can build everything safely.
  */
 async function createSharedDirs() {
-	if (!fs.existsSync(sharedDestDirectory)) {
-		await fs.promises.mkdir(sharedDestDirectory, { recursive: true });
-	}
-
-	if (!fs.existsSync(tempDirectory)) {
-		await fs.promises.mkdir(tempDirectory, { recursive: true });
-	}
+	await ensureDir(sharedDestDirectory);
+	await ensureDir(tempDirectory);
 }
 
 /**
  * Copies modpack overrides.
  */
 async function copyOverrides() {
-	// Copy, not Symlink, so we can transform the files as we wish
-	return promiseStream(
-		src(buildConfig.copyToSharedDirGlobs, {
-			cwd: upath.join(rootDirectory),
-			encoding: false,
-		}).pipe(dest(upath.join(sharedDestDirectory, overridesFolder))),
+	await copyFiles(
+		buildConfig.copyToSharedDirGlobs,
+		path.join(sharedDestDirectory, overridesFolder),
+		{
+			cwd: rootDirectory,
+		},
 	);
 }
 
@@ -64,11 +58,9 @@ async function copyOverrides() {
  * Copies Modpack Pack Mode Switcher Scripts.
  */
 async function copyPackModeSwitchers() {
-	return promiseStream(
-		src(buildConfig.packModeSwitcherGlobs, {
-			cwd: upath.join(rootDirectory),
-		}).pipe(dest(upath.join(sharedDestDirectory, overridesFolder))),
-	);
+	await copyFiles(buildConfig.packModeSwitcherGlobs, sharedDestDirectory, {
+		cwd: rootDirectory,
+	});
 }
 
 /**
@@ -77,11 +69,9 @@ async function copyPackModeSwitchers() {
 async function fetchExternalDependencies() {
 	const dependencies = modpackManifest.externalDependencies;
 	if (dependencies) {
-		const destDirectory = upath.join(modDestDirectory, "mods");
+		const destDirectory = path.join(modDestDirectory, "mods");
 
-		if (!fs.existsSync(destDirectory)) {
-			await fs.promises.mkdir(destDirectory, { recursive: true });
-		}
+		await ensureDir(destDirectory);
 
 		// Map dependencies to FileDefs.
 		const depDefs: FileDef[] = dependencies.map((dep) => {
@@ -100,10 +90,10 @@ async function fetchExternalDependencies() {
 
 		await Promise.all(
 			depDefs.map(async (depDef) => {
-				const dest = upath.join(destDirectory, upath.basename(depDef.url));
+				const dest = path.join(destDirectory, path.basename(depDef.url));
 				const cachePath = (await downloadOrRetrieveFileDef(depDef)).cachePath;
 
-				return fs.promises.symlink(upath.resolve(dest, cachePath), dest);
+				return fs.promises.symlink(path.resolve(dest, cachePath), dest);
 			}),
 		);
 	}
@@ -176,21 +166,14 @@ async function writeToChangelog(
 	changelogFile: string,
 	url: string,
 ) {
-	let handle: fs.promises.FileHandle | undefined = undefined;
 	try {
-		handle = await fs.promises.open(
-			upath.join(buildConfig.buildDestinationDirectory, changelogFile),
-			"w",
+		await fs.promises.writeFile(
+			path.join(buildConfig.buildDestinationDirectory, changelogFile),
+			buffer,
 		);
-
-		await handle.write(buffer);
-		await handle.close();
 	} catch (err) {
-		if (handle && (await handle.stat()).isFile()) {
-			logInfo(`Couldn't download changelog from URL ${url}, cleaning up...`);
+		logError(`Couldn't download changelog from URL ${url}, cleaning up...`);
 
-			await handle.close();
-		}
 		throw err;
 	}
 }
@@ -199,7 +182,7 @@ const updateBuildLabsVersion = async () => {
 	await updateLabsVersion(sharedDestDirectory);
 };
 
-export default gulp.series(
+export default series(
 	sharedCleanUp,
 	createSharedDirs,
 	copyOverrides,
@@ -212,7 +195,7 @@ export default gulp.series(
 	transformQuestBook,
 );
 
-export const buildChangelog = gulp.series(
+export const buildChangelog = series(
 	sharedCleanUp,
 	createSharedDirs,
 	fetchOrMakeChangelog,

@@ -1,5 +1,5 @@
 import fs from "node:fs";
-import upath from "upath";
+import path from "node:path";
 import { rootDirectory } from "#globals";
 import type { Quest, QuestBook } from "#types/bqQuestBook.ts";
 import logInfo, { logError, logNotImportant } from "#utils/log.ts";
@@ -24,10 +24,7 @@ export default async function portQBChanges(): Promise<void> {
 	setupUtils(data);
 
 	const current = JSON.parse(
-		await fs.promises.readFile(
-			upath.join(rootDirectory, data.srcPath),
-			"utf-8",
-		),
+		await fs.promises.readFile(path.join(rootDirectory, data.srcPath), "utf-8"),
 	) as QuestBook;
 	const old = JSON.parse(
 		await getFileAtRevision(data.srcPath, data.ref),
@@ -44,7 +41,7 @@ export default async function portQBChanges(): Promise<void> {
 
 	const toChange = JSON.parse(
 		await fs.promises.readFile(
-			upath.join(rootDirectory, data.srcPathToChange),
+			path.join(rootDirectory, data.srcPathToChange),
 			"utf-8",
 		),
 	) as QuestBook;

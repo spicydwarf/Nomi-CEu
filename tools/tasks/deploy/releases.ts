@@ -1,9 +1,9 @@
 import { modpackManifest } from "#globals";
 
 import fs from "node:fs";
+import path from "node:path";
 import mustache from "mustache";
 import sanitize from "sanitize-filename";
-import upath from "upath";
 import buildConfig from "#buildConfig";
 import {
 	type DeployReleaseType,
@@ -41,9 +41,9 @@ async function deployReleases(): Promise<void> {
 	 * Obligatory file check.
 	 */
 	for (const file of files) {
-		const path = upath.join(buildConfig.buildDestinationDirectory, file);
-		if (!fs.existsSync(path)) {
-			throw new Error(`File ${path} doesn't exist!`);
+		const filePath = path.join(buildConfig.buildDestinationDirectory, file);
+		if (!fs.existsSync(filePath)) {
+			throw new Error(`File ${filePath} doesn't exist!`);
 		}
 	}
 
@@ -69,7 +69,7 @@ async function deployReleases(): Promise<void> {
 	// Since we've grabbed, or built, everything beforehand, the Changelog file should be in the build dir
 	let changelog = (
 		await fs.promises.readFile(
-			upath.join(buildConfig.buildDestinationDirectory, "CHANGELOG.md"),
+			path.join(buildConfig.buildDestinationDirectory, "CHANGELOG.md"),
 		)
 	).toString();
 
@@ -97,7 +97,7 @@ async function deployReleases(): Promise<void> {
 
 				// Dumb workaround thanks to broken typings. Data should accept buffers...
 				data: (await fs.promises.readFile(
-					upath.join(buildConfig.buildDestinationDirectory, file),
+					path.join(buildConfig.buildDestinationDirectory, file),
 				)) as unknown as string,
 			});
 		}),

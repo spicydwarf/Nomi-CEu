@@ -1,7 +1,7 @@
 import fs from "node:fs";
+import path from "node:path";
 import { sha1 } from "hash-wasm";
 import unzip from "unzipper";
-import upath from "upath";
 import buildConfig from "#buildConfig";
 import { modpackManifest } from "#globals";
 import type { ForgeProfile } from "#types/forgeProfile.ts";
@@ -87,7 +87,7 @@ export default async function pruneCache(): Promise<void> {
 		await fs.promises.readdir(buildConfig.downloaderCacheDirectory)
 	).filter((entity) =>
 		fs
-			.statSync(upath.join(buildConfig.downloaderCacheDirectory, entity))
+			.statSync(path.join(buildConfig.downloaderCacheDirectory, entity))
 			.isFile(),
 	);
 
@@ -102,15 +102,17 @@ export default async function pruneCache(): Promise<void> {
 
 	for (const sha of cache) {
 		if (!shaMap[sha]) {
-			const path = upath.join(buildConfig.downloaderCacheDirectory, sha);
-			const stat = fs.existsSync(path) ? await fs.promises.stat(path) : null;
+			const filePath = path.join(buildConfig.downloaderCacheDirectory, sha);
+			const stat = fs.existsSync(filePath)
+				? await fs.promises.stat(filePath)
+				: null;
 
 			if (stat?.isFile()) {
 				count += 1;
 				bytes += stat.size;
 				logInfo(`Pruning ${sha}...`);
 
-				await fs.promises.unlink(path);
+				await fs.promises.unlink(filePath);
 			}
 		}
 	}

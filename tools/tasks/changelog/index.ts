@@ -1,6 +1,6 @@
-import fs from "node:fs";
+import fs from "node:fs/promises";
+import path from "node:path";
 import { marked } from "marked";
-import upath from "upath";
 import buildConfig from "#buildConfig";
 import { rootDirectory } from "#globals";
 import logInfo from "#utils/log.ts";
@@ -76,12 +76,12 @@ export const createRootChangelog = async (): Promise<void> => {
 	const builder = (await createChangelog()).builder;
 
 	// Write files.
-	await fs.promises.writeFile(
-		upath.join(rootDirectory, "CHANGELOG.md"),
+	await fs.writeFile(
+		path.join(rootDirectory, "CHANGELOG.md"),
 		builder.join("\n"),
 	);
-	return fs.promises.writeFile(
-		upath.join(rootDirectory, "CHANGELOG_CF.md"),
+	await fs.writeFile(
+		path.join(rootDirectory, "CHANGELOG_CF.md"),
 		await marked(builder.join("\n"), { async: true }),
 	);
 };
@@ -94,12 +94,12 @@ export const createBuildChangelog = async (): Promise<void> => {
 	const builder = (await createChangelog()).builder;
 
 	// Write files.
-	await fs.promises.writeFile(
-		upath.join(buildConfig.buildDestinationDirectory, "CHANGELOG.md"),
+	await fs.writeFile(
+		path.join(buildConfig.buildDestinationDirectory, "CHANGELOG.md"),
 		builder.join("\n"),
 	);
-	return fs.promises.writeFile(
-		upath.join(buildConfig.buildDestinationDirectory, "CHANGELOG_CF.md"),
+	await fs.writeFile(
+		path.join(buildConfig.buildDestinationDirectory, "CHANGELOG_CF.md"),
 		await marked(builder.join("\n"), { async: true }),
 	);
 };

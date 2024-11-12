@@ -1,5 +1,6 @@
 import { execSync } from "node:child_process";
 import fs from "node:fs";
+import path from "node:path";
 import stream from "node:stream";
 import { retry } from "@octokit/plugin-retry";
 import { throttling } from "@octokit/plugin-throttling";
@@ -20,7 +21,6 @@ import axiosRetry, {
 import { sha1 } from "hash-wasm";
 import lodash from "lodash";
 import { type SimpleGit, pathspec, simpleGit } from "simple-git";
-import upath from "upath";
 import buildConfig from "#buildConfig";
 import { modpackManifest, repoName, repoOwner, rootDirectory } from "#globals";
 import type { NomiConfig } from "#types/axios.ts";
@@ -213,7 +213,7 @@ export async function downloadOrRetrieveFileDef(
 ): Promise<RetrievedFileDef> {
 	const fileNameSha = await sha1(fileDef.url);
 
-	const cachedFilePath = upath.join(
+	const cachedFilePath = path.join(
 		buildConfig.downloaderCacheDirectory,
 		fileNameSha,
 	);
@@ -262,7 +262,7 @@ export async function downloadOrRetrieveFileDef(
 		// noinspection PointlessBooleanExpressionJS,JSObjectNullOrUndefined
 		if (handle && (await handle.stat()).isFile()) {
 			logInfo(
-				`Couldn't download ${upath.basename(fileDef.url)}, cleaning up ${fileNameSha}...`,
+				`Couldn't download ${path.basename(fileDef.url)}, cleaning up ${fileNameSha}...`,
 			);
 
 			await handle.close();
@@ -859,7 +859,7 @@ export async function getForgeJar(): Promise<{
 	 */
 	const forgeMavenLibrary = `net.minecraftforge:forge:${minecraft.version}-${parsedForgeEntry[1]}`;
 	const forgeInstallerPath = `${libraryToPath(forgeMavenLibrary)}-installer.jar`;
-	const forgeUniversalPath = upath.join(
+	const forgeUniversalPath = path.join(
 		"maven",
 		`${libraryToPath(forgeMavenLibrary)}.jar`,
 	);
@@ -916,6 +916,22 @@ export function shouldSkipChangelog(): boolean {
 	return skip;
 }
 
-export function promiseStream(stream: NodeJS.ReadWriteStream): Promise<void> {
-	return new Promise((resolve) => stream.on("end", resolve));
+export type Task = Promise<unknown> | (() => Promise<unknown>);
+
+export function series(...tasks: Task[]): () => Promise<void> {
+	return async () => {
+		for (const task of tasks) {
+			if (typeof task === "function") {
+				await task();
+			} else {
+				await task;
+			}
+		}
+	};
+}
+
+export function parallel(...tasks: Task[]): () => Promise<void> {
+	return async () => {
+		await Promise.all(tasks);
+	};
 }

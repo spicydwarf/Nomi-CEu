@@ -1,5 +1,5 @@
 import fs from "node:fs";
-import upath from "upath";
+import path from "node:path";
 import buildConfig from "#buildConfig";
 import type {
 	CurseForgeFileInfo,
@@ -327,17 +327,17 @@ export async function fetchMods(
 
 				if (modFile.reason === RetrievedFileDefReason.Downloaded) {
 					logInfo(
-						`Downloaded ${upath.basename(fileDef.url)}... (${fetched} / ${toFetch.length})`,
+						`Downloaded ${path.basename(fileDef.url)}... (${fetched} / ${toFetch.length})`,
 					);
 				} else if (modFile.reason === RetrievedFileDefReason.CacheHit) {
 					logInfo(
-						`Fetched ${upath.basename(fileDef.url)} from cache... (${fetched} / ${toFetch.length})`,
+						`Fetched ${path.basename(fileDef.url)} from cache... (${fetched} / ${toFetch.length})`,
 					);
 				}
 
-				const dest = upath.join(destination, fileInfo.fileName);
+				const dest = path.join(destination, fileInfo.fileName);
 
-				await fs.promises.symlink(upath.resolve(modFile.cachePath), dest);
+				await fs.promises.symlink(path.resolve(modFile.cachePath), dest);
 			}),
 		);
 	} else {

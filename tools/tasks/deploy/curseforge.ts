@@ -1,12 +1,12 @@
 import { modpackManifest } from "#globals";
 
 import fs from "node:fs";
+import path from "node:path";
 import * as core from "@actions/core";
 import type { AxiosRequestConfig } from "axios";
 import { filesize } from "filesize";
 import mustache from "mustache";
 import sanitize from "sanitize-filename";
-import upath from "upath";
 import buildConfig from "#buildConfig";
 import {
 	type DeployReleaseType,
@@ -30,21 +30,21 @@ const variablesToCheck = [
 
 async function upload(files: { name: string; displayName: string }[]) {
 	const filePaths = files.map((file) => {
-		const path = upath.join(
+		const filePath = path.join(
 			buildConfig.buildDestinationDirectory,
 			"cf",
 			file.name,
 		);
-		if (!fs.existsSync(path)) {
-			throw new Error(`File ${path} doesn't exist!`);
+		if (!fs.existsSync(filePath)) {
+			throw new Error(`File ${filePath} doesn't exist!`);
 		}
-		return { path: path, file: file };
+		return { path: filePath, file: file };
 	});
 
 	// Since we've built everything beforehand, the changelog must be available in the shared directory.
 	let changelog = (
 		await fs.promises.readFile(
-			upath.join(buildConfig.buildDestinationDirectory, "CHANGELOG_CF.md"),
+			path.join(buildConfig.buildDestinationDirectory, "CHANGELOG_CF.md"),
 		)
 	).toString();
 

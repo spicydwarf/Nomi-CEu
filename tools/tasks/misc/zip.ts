@@ -1,7 +1,7 @@
-import gulp, { src } from "gulp";
-import zip from "gulp-zip";
+import fs from "node:fs";
+import { join } from "node:path";
+import archiver from "archiver";
 import sanitize from "sanitize-filename";
-import upath from "upath";
 import buildConfig from "#buildConfig";
 import {
 	clientDestDirectory,
@@ -10,7 +10,7 @@ import {
 	modpackManifest,
 	serverDestDirectory,
 } from "#globals";
-import { makeArtifactNameBody, promiseStream } from "#utils/util.ts";
+import { makeArtifactNameBody, parallel } from "#utils/util.ts";
 
 async function zipFolder(
 	path: string,
@@ -18,11 +18,16 @@ async function zipFolder(
 	dest: string,
 	zipName: string,
 ): Promise<void> {
-	return promiseStream(
-		src(globs, { cwd: path, dot: true, encoding: false })
-			.pipe(zip(zipName))
-			.pipe(gulp.dest(dest)),
-	);
+	const output = fs.createWriteStream(join(dest, zipName));
+	const archive = archiver("zip");
+
+	archive.pipe(output);
+
+	for (const glob of globs) {
+		archive.glob(glob, { cwd: path, dot: true });
+	}
+
+	archive.finalize();
 }
 
 function makeZipper(src: string, artifactName: string, isCFZip = false) {
@@ -31,7 +36,7 @@ function makeZipper(src: string, artifactName: string, isCFZip = false) {
 			src,
 			isCFZip ? buildConfig.cfZipGlobs : buildConfig.normalZipGlobs,
 			isCFZip
-				? upath.join(buildConfig.buildDestinationDirectory, "cf")
+				? join(buildConfig.buildDestinationDirectory, "cf")
 				: buildConfig.buildDestinationDirectory,
 			sanitize(
 				`${makeArtifactNameBody(modpackManifest.name)}-${artifactName}.zip`.toLowerCase(),
@@ -54,7 +59,7 @@ export const zipMMC = makeZipper(mmcDestDirectory, "MMC");
 export const zipServerCF = makeZipper(serverDestDirectory, "Server", true);
 export const zipClientCF = makeZipper(clientDestDirectory, "Client", true);
 
-export const zipAll = gulp.parallel(
+export const zipAll = parallel(
 	zipServer,
 	zipClient,
 	zipLang,

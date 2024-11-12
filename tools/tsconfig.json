@@ -20,7 +20,7 @@
 		"resolveJsonModule": true
 	},
 	"include": [
-		"gulpfile.ts",
+		"tasks.ts",
 		"globals.ts",
 		"buildConfig.ts",
 		"tasks/**/*",

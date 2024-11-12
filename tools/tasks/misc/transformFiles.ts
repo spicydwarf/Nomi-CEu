@@ -1,13 +1,12 @@
 import fs from "node:fs";
+import path from "node:path";
 import dedent from "dedent-js";
-import gulp from "gulp";
 import mustache from "mustache";
 import sortKeysRecursive from "sort-keys-recursive";
-import upath from "upath";
 import { configFolder, rootDirectory, templatesFolder } from "#globals";
 import { BuildData } from "#types/transformFiles.ts";
 import { logWarn } from "#utils/log.ts";
-import { isEnvVariableSet } from "#utils/util.ts";
+import { isEnvVariableSet, parallel, series } from "#utils/util.ts";
 
 // This updates all the files, for a release.
 
@@ -33,7 +32,7 @@ async function updateFilesSetup(): Promise<void> {
 	}
 	buildData = new BuildData();
 
-	const versionsFilePath: string = upath.join(templatesFolder, "versions.txt");
+	const versionsFilePath: string = path.join(templatesFolder, "versions.txt");
 	updateFileVersion = "";
 
 	if (!buildData.isVersionBuild() && !updateFiles) return;
@@ -124,7 +123,7 @@ async function updateIssueTemplates(): Promise<void> {
 	// Filenames
 	const fileNames: string[] = ["001-bug-report.yml", "002-feature-request.yml"];
 
-	const versionsFilePath: string = upath.join(templatesFolder, "versions.txt");
+	const versionsFilePath: string = path.join(templatesFolder, "versions.txt");
 
 	let versionList: string = await fs.promises.readFile(
 		versionsFilePath,
@@ -148,7 +147,7 @@ async function updateIssueTemplates(): Promise<void> {
 		versions: versionList,
 	};
 
-	const issueTemplatesFolder: string = upath.join(
+	const issueTemplatesFolder: string = path.join(
 		rootDirectory,
 		".github",
 		"ISSUE_TEMPLATE",
@@ -156,8 +155,8 @@ async function updateIssueTemplates(): Promise<void> {
 
 	// Write to issue templates
 	for (const fileName of fileNames) {
-		const readPath = upath.join(templatesFolder, fileName);
-		const writePath = upath.join(issueTemplatesFolder, fileName);
+		const readPath = path.join(templatesFolder, fileName);
+		const writePath = path.join(issueTemplatesFolder, fileName);
 		await modifyFile(readPath, writePath, replacementObject);
 	}
 }
@@ -165,8 +164,8 @@ async function updateIssueTemplates(): Promise<void> {
 async function updateMainMenuConfig(): Promise<void> {
 	// Filename & paths
 	const fileName = "mainmenu.json";
-	const readPath: string = upath.join(templatesFolder, fileName);
-	const writePath: string = upath.join(
+	const readPath: string = path.join(templatesFolder, fileName);
+	const writePath: string = path.join(
 		rootDirectory,
 		configFolder,
 		"CustomMainMenu",
@@ -206,8 +205,8 @@ async function updateMainMenuConfig(): Promise<void> {
 /* Functions USED in Build Process */
 export async function updateLabsVersion(rootDir: string): Promise<void> {
 	const fileName = "nomilabs-version.cfg";
-	const readPath: string = upath.join(templatesFolder, fileName);
-	const writePath = upath.join(rootDir, configFolder, fileName);
+	const readPath: string = path.join(templatesFolder, fileName);
+	const writePath = path.join(rootDir, configFolder, fileName);
 
 	const replacementObject: Record<string, unknown> = {
 		version: updateFiles
@@ -223,24 +222,17 @@ const updateFilesLabsVersion = async () => {
 	await updateLabsVersion(rootDirectory);
 };
 
-export const updateFilesIssue = gulp.series(
-	updateFilesSetup,
-	updateIssueTemplates,
-);
-export const updateFilesVersion = gulp.series(
+export const updateFilesIssue = series(updateFilesSetup, updateIssueTemplates);
+export const updateFilesVersion = series(
 	updateFilesSetup,
 	updateFilesLabsVersion,
 );
-export const updateFilesMainMenu = gulp.series(
+export const updateFilesMainMenu = series(
 	updateFilesSetup,
 	updateMainMenuConfig,
 );
 
-export const updateAll = gulp.series(
+export const updateAll = series(
 	updateFilesSetup,
-	gulp.parallel(
-		updateIssueTemplates,
-		updateFilesLabsVersion,
-		updateMainMenuConfig,
-	),
+	parallel(updateIssueTemplates, updateFilesLabsVersion, updateMainMenuConfig),
 );

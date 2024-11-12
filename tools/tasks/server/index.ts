@@ -1,10 +1,8 @@
 import fs from "node:fs";
-import { deleteAsync } from "del";
-import { dest, series, src } from "gulp";
+import path from "node:path";
+import glob from "fast-glob";
 import mustache from "mustache";
-import through from "through2";
 import unzip from "unzipper";
-import upath from "upath";
 import buildConfig from "#buildConfig";
 import {
 	modDestDirectory,
@@ -19,23 +17,22 @@ import {
 	downloadOrRetrieveFileDef,
 	getForgeJar,
 	getVersionManifest,
-	promiseStream,
+	series,
 	shouldSkipChangelog,
 } from "#utils/util.ts";
+import { copyFiles, ensureDir, removeDir } from "#utils/build.js";
 
 let g_forgeJar: string | undefined = undefined;
 
 async function serverCleanUp() {
-	return deleteAsync(upath.join(serverDestDirectory, "*"), { force: true });
+	await removeDir(serverDestDirectory);
 }
 
 /**
  * Checks and creates all necessary directories so we can build the server safely.
  */
 async function createServerDirs() {
-	if (!fs.existsSync(serverDestDirectory)) {
-		return fs.promises.mkdir(serverDestDirectory, { recursive: true });
-	}
+	await ensureDir(serverDestDirectory);
 }
 
 /**
@@ -89,7 +86,7 @@ async function downloadForge() {
 	 */
 	logInfo("Extracting the Forge jar...");
 	await fs.promises.writeFile(
-		upath.join(serverDestDirectory, upath.basename(forgeUniversalPath)),
+		path.join(serverDestDirectory, path.basename(forgeUniversalPath)),
 		forgeUniversalJar,
 	);
 
@@ -98,7 +95,7 @@ async function downloadForge() {
 	 *
 	 * We will need it to process launchscripts.
 	 */
-	g_forgeJar = upath.basename(forgeUniversalPath);
+	g_forgeJar = path.basename(forgeUniversalPath);
 
 	/**
 	 * Finally, fetch libraries.
@@ -122,16 +119,9 @@ async function downloadForge() {
 				];
 			}
 
-			const destPath = upath.join(
-				serverDestDirectory,
-				"libraries",
-				libraryPath,
-			);
-
-			await fs.promises.mkdir(upath.dirname(destPath), { recursive: true });
-			return fs.promises.copyFile(
+			await fs.promises.copyFile(
 				(await downloadOrRetrieveFileDef(def)).cachePath,
-				destPath,
+				path.join(serverDestDirectory, "libraries", libraryPath),
 			);
 		}),
 	);
@@ -163,67 +153,50 @@ async function downloadMinecraftServer() {
 		throw new Error(`No server jar file found for ${versionManifest.id}`);
 	}
 
-	const dest = upath.join(
+	const dest = path.join(
 		serverDestDirectory,
 		`minecraft_server.${versionManifest.id}.jar`,
 	);
-	await fs.promises.copyFile(upath.resolve(serverJar.cachePath), dest);
+	await fs.promises.copyFile(path.resolve(serverJar.cachePath), dest);
 }
 
 /**
  * Copies server & shared mods.
  */
 async function copyServerMods() {
-	return promiseStream(
-		src(["*", upath.join("server", "*")], {
-			cwd: modDestDirectory,
-			resolveSymlinks: true,
-			encoding: false,
-		}).pipe(dest(upath.join(serverDestDirectory, "mods"))),
-	);
+	await copyFiles(["*", path.join("server", "*")], serverDestDirectory, {
+		cwd: modDestDirectory,
+	});
 }
 
 /**
  * Copies modpack overrides.
  */
 async function copyServerOverrides() {
-	return promiseStream(
-		src(buildConfig.copyFromSharedServerGlobs, {
-			cwd: sharedDestDirectory,
-			allowEmpty: true,
-			resolveSymlinks: true,
-			encoding: false,
-		}).pipe(dest(upath.join(serverDestDirectory))),
-	);
+	await copyFiles(buildConfig.copyFromSharedServerGlobs, serverDestDirectory, {
+		cwd: sharedDestDirectory,
+	});
 }
 
 /**
  * Copies files from ./serverfiles into dest folder.
  */
 async function copyServerFiles() {
-	return promiseStream(
-		src(["../serverfiles/**"], {
-			encoding: false, // Needed because of the Server Icon
-		}).pipe(dest(serverDestDirectory)),
-	);
+	await copyFiles("../serverfiles/**", serverDestDirectory);
 }
 
 /**
  * Copies the license file.
  */
 async function copyServerLicense() {
-	return promiseStream(src("../LICENSE").pipe(dest(serverDestDirectory)));
+	await copyFiles("../LICENSE", serverDestDirectory);
 }
 
 /**
  * Copies the update notes file.
  */
 async function copyServerUpdateNotes() {
-	return promiseStream(
-		src("../UPDATENOTES.md", { allowEmpty: true }).pipe(
-			dest(serverDestDirectory),
-		),
-	);
+	await copyFiles("../UPDATENOTES.md", serverDestDirectory);
 }
 
 /**
@@ -232,10 +205,9 @@ async function copyServerUpdateNotes() {
 async function copyServerChangelog() {
 	if (shouldSkipChangelog()) return;
 
-	return promiseStream(
-		src(upath.join(buildConfig.buildDestinationDirectory, "CHANGELOG.md")).pipe(
-			dest(serverDestDirectory),
-		),
+	await copyFiles(
+		path.join(buildConfig.buildDestinationDirectory, "CHANGELOG.md"),
+		serverDestDirectory,
 	);
 }
 
@@ -259,19 +231,18 @@ async function processLaunchscripts() {
 		logWarn("Did downloadForge task fail?");
 	}
 
-	return promiseStream(
-		src(["../launchscripts/**"])
-			.pipe(
-				through.obj((file, _, callback) => {
-					if (file.isBuffer()) {
-						const rendered = mustache.render(file.contents.toString(), rules);
-						file.contents = Buffer.from(rendered);
-					}
-					callback(null, file);
-				}),
-			)
-			.pipe(dest(serverDestDirectory)),
-	);
+	const files = await glob("../launchscripts/**");
+
+	for (const file of files) {
+		const content = await fs.promises.readFile(file, "utf-8");
+		const rendered = mustache.render(content, rules);
+		const destPath = path.join(
+			serverDestDirectory,
+			path.relative("../launchscripts", file),
+		);
+
+		await fs.promises.writeFile(destPath, rendered);
+	}
 }
 
 export default series(

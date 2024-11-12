@@ -1,50 +1,42 @@
-import fs from "node:fs";
-import { deleteAsync } from "del";
-import { dest, series, src } from "gulp";
-import upath from "upath";
+import path from "node:path";
 import buildConfig from "#buildConfig";
 import {
 	langDestDirectory,
 	overridesFolder,
 	sharedDestDirectory,
 } from "#globals";
-import { promiseStream, shouldSkipChangelog } from "#utils/util.ts";
+import { copyFiles, ensureDir, removeDir } from "#utils/build.js";
+import { series, shouldSkipChangelog } from "#utils/util.ts";
 
-const resourcesPath = upath.join(
+const resourcesPath = path.join(
 	sharedDestDirectory,
 	overridesFolder,
 	"resources",
 );
 
 async function langCleanUp() {
-	return deleteAsync(upath.join(langDestDirectory, "*"), { force: true });
+	await removeDir(langDestDirectory);
 }
 
 /**
  * Checks and creates all necessary directories so we can build the lang safely.
  */
 async function createLangDirs() {
-	if (!fs.existsSync(langDestDirectory)) {
-		await fs.promises.mkdir(langDestDirectory, { recursive: true });
-	}
+	await ensureDir(langDestDirectory);
 }
 
 /**
  * Copies the license file.
  */
 async function copyLangLicense() {
-	return promiseStream(src("../LICENSE").pipe(dest(langDestDirectory)));
+	await copyFiles("../LICENSE", langDestDirectory);
 }
 
 /**
  * Copies the update notes file.
  */
 async function copyLangUpdateNotes() {
-	return promiseStream(
-		src("../UPDATENOTES.md", { allowEmpty: true }).pipe(
-			dest(langDestDirectory),
-		),
-	);
+	await copyFiles("../UPDATENOTES.md", langDestDirectory);
 }
 
 /**
@@ -53,27 +45,20 @@ async function copyLangUpdateNotes() {
 async function copyLangChangelog() {
 	if (shouldSkipChangelog()) return;
 
-	return promiseStream(
-		src(upath.join(buildConfig.buildDestinationDirectory, "CHANGELOG.md")).pipe(
-			dest(langDestDirectory),
-		),
+	await copyFiles(
+		path.join(buildConfig.buildDestinationDirectory, "CHANGELOG.md"),
+		langDestDirectory,
 	);
 }
 
 async function copyLangFiles() {
-	return promiseStream(
-		src(upath.join("**", "*.lang"), { cwd: resourcesPath }).pipe(
-			dest(upath.join(langDestDirectory, "assets")),
-		),
-	);
+	await copyFiles("**/*.lang", path.join(langDestDirectory, "assets"), {
+		cwd: resourcesPath,
+	});
 }
 
 async function copyLangMcMeta() {
-	return promiseStream(
-		src("pack.mcmeta", { cwd: resourcesPath }).pipe(
-			dest(upath.join(langDestDirectory)),
-		),
-	);
+	await copyFiles(path.join(resourcesPath, "pack.mcmeta"), langDestDirectory);
 }
 
 export default series(

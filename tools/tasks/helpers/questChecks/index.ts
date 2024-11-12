@@ -1,9 +1,9 @@
 import fs from "node:fs";
+import path from "node:path";
 import * as core from "@actions/core";
 import { input, select } from "@inquirer/prompts";
 import colors from "colors";
 import lodash from "lodash";
-import upath from "upath";
 import { rootDirectory } from "#globals";
 import {
 	cfgExpertPath,
@@ -34,7 +34,7 @@ export const check = async () => {
 					"Run the below Command in your Local Clone to Format the Quest Book:",
 					true,
 				)
-				.addCodeBlock("npm run gulp fixQB");
+				.addCodeBlock("npm run nomi-ceu fixQB");
 
 			if (e instanceof Error) summary.addDetails("Details...", e.message);
 
@@ -52,21 +52,21 @@ async function checkAndFix(shouldCheck: boolean) {
 
 	if (shouldCheck) {
 		const nml1 = await fs.promises.readFile(
-			upath.join(rootDirectory, cfgNormalPath),
+			path.join(rootDirectory, cfgNormalPath),
 			"utf-8",
 		);
 		const nml2 = await fs.promises.readFile(
-			upath.join(rootDirectory, cfgOverrideNormalPath),
+			path.join(rootDirectory, cfgOverrideNormalPath),
 			"utf-8",
 		);
 		if (nml1 !== nml2) throw new Error("Normal Quest Books are not the Same!");
 
 		const exp1 = await fs.promises.readFile(
-			upath.join(rootDirectory, cfgExpertPath),
+			path.join(rootDirectory, cfgExpertPath),
 			"utf-8",
 		);
 		const exp2 = await fs.promises.readFile(
-			upath.join(rootDirectory, cfgOverrideExpertPath),
+			path.join(rootDirectory, cfgOverrideExpertPath),
 			"utf-8",
 		);
 		if (exp1 !== exp2) throw new Error("Expert Quest Books are not the Same!");
@@ -104,7 +104,7 @@ async function checkAndFix(shouldCheck: boolean) {
 
 		checkNormalQB = JSON.parse(
 			await fs.promises.readFile(
-				upath.join(
+				path.join(
 					rootDirectory,
 					normalSrc === "CFG" ? cfgNormalPath : cfgOverrideNormalPath,
 				),
@@ -114,7 +114,7 @@ async function checkAndFix(shouldCheck: boolean) {
 
 		checkExpertQB = JSON.parse(
 			await fs.promises.readFile(
-				upath.join(
+				path.join(
 					rootDirectory,
 					expertSrc === "CFG" ? cfgExpertPath : cfgOverrideExpertPath,
 				),
@@ -133,14 +133,14 @@ async function checkAndFix(shouldCheck: boolean) {
 		const normal = stringifyQB(checkNormalQB);
 		const expert = stringifyQB(checkExpertQB);
 		await Promise.all([
-			fs.promises.writeFile(upath.join(rootDirectory, cfgNormalPath), normal),
+			fs.promises.writeFile(path.join(rootDirectory, cfgNormalPath), normal),
 			fs.promises.writeFile(
-				upath.join(rootDirectory, cfgOverrideNormalPath),
+				path.join(rootDirectory, cfgOverrideNormalPath),
 				normal,
 			),
-			fs.promises.writeFile(upath.join(rootDirectory, cfgExpertPath), expert),
+			fs.promises.writeFile(path.join(rootDirectory, cfgExpertPath), expert),
 			fs.promises.writeFile(
-				upath.join(rootDirectory, cfgOverrideExpertPath),
+				path.join(rootDirectory, cfgOverrideExpertPath),
 				expert,
 			),
 		]);
