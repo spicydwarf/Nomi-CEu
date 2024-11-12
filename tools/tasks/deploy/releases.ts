@@ -3,14 +3,17 @@ import { modpackManifest } from "#globals";
 import fs from "node:fs";
 import path from "node:path";
 import mustache from "mustache";
-import sanitize from "sanitize-filename";
 import buildConfig from "#buildConfig";
 import {
 	type DeployReleaseType,
 	type InputReleaseType,
 	inputToDeployReleaseTypes,
 } from "#types/changelogTypes.ts";
-import { makeArtifactNameBody, octokit } from "#utils/util.ts";
+import {
+	makeArtifactNameBody,
+	octokit,
+	sanitizeFilename,
+} from "#utils/util.ts";
 
 const variablesToCheck = [
 	"GITHUB_TAG",
@@ -34,7 +37,7 @@ async function deployReleases(): Promise<void> {
 
 	const body = makeArtifactNameBody(modpackManifest.name);
 	const files = ["client", "server", "lang"].map((file) =>
-		sanitize(`${body}-${file}.zip`.toLowerCase()),
+		sanitizeFilename(`${body}-${file}.zip`.toLowerCase()),
 	);
 
 	/**

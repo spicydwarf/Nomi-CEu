@@ -1,8 +1,7 @@
 import { setOutput } from "@actions/core";
-import sanitize from "sanitize-filename";
 import { modpackManifest } from "#globals";
 import logInfo from "#utils/log.js";
-import { makeArtifactNameBody } from "#utils/util.ts";
+import { makeArtifactNameBody, sanitizeFilename } from "#utils/util.ts";
 
 export async function makeArtifactNames(): Promise<void> {
 	const body = makeArtifactNameBody(modpackManifest.name);
@@ -14,7 +13,7 @@ export async function makeArtifactNames(): Promise<void> {
 	};
 
 	for (const [type, name] of Object.entries(names)) {
-		setOutput(type, sanitize(name.toLowerCase()));
+		setOutput(type, sanitizeFilename(name.toLowerCase()));
 		logInfo(`Made Name for Type '${type}': '${name.toLowerCase()}'`);
 	}
 }

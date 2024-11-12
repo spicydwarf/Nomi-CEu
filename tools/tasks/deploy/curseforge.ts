@@ -5,7 +5,6 @@ import path from "node:path";
 import * as core from "@actions/core";
 import type { AxiosRequestConfig } from "axios";
 import mustache from "mustache";
-import sanitize from "sanitize-filename";
 import buildConfig from "#buildConfig";
 import {
 	type DeployReleaseType,
@@ -19,6 +18,7 @@ import {
 	getAxios,
 	isEnvVariableSet,
 	makeArtifactNameBody,
+	sanitizeFilename,
 } from "#utils/util.ts";
 
 const CURSEFORGE_LEGACY_ENDPOINT = "https://minecraft.curseforge.com/";
@@ -170,13 +170,13 @@ export async function deployCurseForge(): Promise<void> {
 
 	const files = [
 		{
-			name: sanitize(
+			name: sanitizeFilename(
 				`${makeArtifactNameBody(modpackManifest.name)}-client.zip`.toLowerCase(),
 			),
 			displayName: displayName,
 		},
 		{
-			name: sanitize(
+			name: sanitizeFilename(
 				`${makeArtifactNameBody(modpackManifest.name)}-server.zip`.toLowerCase(),
 			),
 			displayName: `${displayName}-server`,

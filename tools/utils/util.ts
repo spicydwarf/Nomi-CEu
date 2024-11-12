@@ -948,3 +948,7 @@ export function filesize(size: number) {
 
 	return `${bytes.toFixed(2)} ${units[i]}`;
 }
+
+export function sanitizeFilename(filename: string) {
+	return filename.replace(/[<>:"/\\|?*]+/g, "-").trim();
+}

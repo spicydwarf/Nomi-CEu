@@ -1,7 +1,6 @@
 import fs from "node:fs";
 import { join } from "node:path";
 import archiver from "archiver";
-import sanitize from "sanitize-filename";
 import buildConfig from "#buildConfig";
 import {
 	clientDestDirectory,
@@ -10,7 +9,11 @@ import {
 	modpackManifest,
 	serverDestDirectory,
 } from "#globals";
-import { makeArtifactNameBody, parallel } from "#utils/util.ts";
+import {
+	makeArtifactNameBody,
+	parallel,
+	sanitizeFilename,
+} from "#utils/util.ts";
 
 async function zipFolder(
 	path: string,
@@ -38,7 +41,7 @@ function makeZipper(src: string, artifactName: string, isCFZip = false) {
 			isCFZip
 				? join(buildConfig.buildDestinationDirectory, "cf")
 				: buildConfig.buildDestinationDirectory,
-			sanitize(
+			sanitizeFilename(
 				`${makeArtifactNameBody(modpackManifest.name)}-${artifactName}.zip`.toLowerCase(),
 			),
 		);
