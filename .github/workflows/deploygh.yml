@@ -55,7 +55,7 @@ jobs:
 
       - name: Check Environmental Variables
         working-directory: ./tools
-        run: npm run gulp check
+        run: npm run nomi-ceu check
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           CURSEFORGE_PROJECT_ID: ${{ secrets.CURSEFORGE_PROJECT_ID }}
@@ -75,4 +75,4 @@ jobs:
           CURSEFORGE_API_TOKEN: ${{ secrets.CURSEFORGE_API_TOKEN }}
           RELEASE_TYPE: ${{ inputs.release_type }}
         working-directory: ./tools
-        run: npm run gulp deployReleases
+        run: npm run nomi-ceu deployReleases

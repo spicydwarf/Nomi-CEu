@@ -66,7 +66,7 @@ jobs:
       - name: Make Artifact Names
         id: artifactNames
         working-directory: ./tools
-        run: npm run gulp makeArtifactNames
+        run: npm run nomi-ceu makeArtifactNames
 
   buildClient:
     name: Build Fork PR Client (${{ github.event.pull_request.head.sha }})
@@ -94,7 +94,7 @@ jobs:
 
       - name: Build Client
         working-directory: ./tools
-        run: npm run gulp buildClient
+        run: npm run nomi-ceu buildClient
         env:
           CFCORE_API_TOKEN: ${{ secrets.CFCORE_API_TOKEN }}
 
@@ -132,7 +132,7 @@ jobs:
 
       - name: Build Server
         working-directory: ./tools
-        run: npm run gulp buildServer
+        run: npm run nomi-ceu buildServer
         env:
           CFCORE_API_TOKEN: ${{ secrets.CFCORE_API_TOKEN }}
 
@@ -170,7 +170,7 @@ jobs:
 
       - name: Build Lang
         working-directory: ./tools
-        run: npm run gulp buildLang
+        run: npm run nomi-ceu buildLang
         env:
           CFCORE_API_TOKEN: ${{ secrets.CFCORE_API_TOKEN }}
 

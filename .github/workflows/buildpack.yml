@@ -139,7 +139,7 @@ jobs:
 
       - name: Check Environmental Variables
         working-directory: ./tools
-        run: npm run gulp check
+        run: npm run nomi-ceu check
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           CURSEFORGE_PROJECT_ID: ${{ secrets.CURSEFORGE_PROJECT_ID }}
@@ -205,7 +205,7 @@ jobs:
 
       - name: Check Environmental Variables
         working-directory: ./tools
-        run: npm run gulp check
+        run: npm run nomi-ceu check
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           CURSEFORGE_PROJECT_ID: ${{ secrets.CURSEFORGE_PROJECT_ID }}
@@ -215,12 +215,12 @@ jobs:
       - name: Make Artifact Names
         id: artifactNames
         working-directory: ./tools
-        run: npm run gulp makeArtifactNames
+        run: npm run nomi-ceu makeArtifactNames
 
       - name: Make Changelogs
         if: ${{ !inputs.skip_changelog }}
         working-directory: ./tools
-        run: npm run gulp buildChangelog
+        run: npm run nomi-ceu buildChangelog
         env:
           CFCORE_API_TOKEN: ${{ secrets.CFCORE_API_TOKEN }}
           CHANGELOG_BRANCH: ${{ inputs.changelog_branch }}
@@ -279,7 +279,7 @@ jobs:
 
       - name: Build Client
         working-directory: ./tools
-        run: npm run gulp buildClient
+        run: npm run nomi-ceu buildClient
         env:
           CFCORE_API_TOKEN: ${{ secrets.CFCORE_API_TOKEN }}
           MADE_CHANGELOG: true # Changelog Already Exists
@@ -343,7 +343,7 @@ jobs:
 
       - name: Build Server
         working-directory: ./tools
-        run: npm run gulp buildServer
+        run: npm run nomi-ceu buildServer
         env:
           CFCORE_API_TOKEN: ${{ secrets.CFCORE_API_TOKEN }}
           MADE_CHANGELOG: true # Changelog Already Exists
@@ -398,7 +398,7 @@ jobs:
 
       - name: Build Lang
         working-directory: ./tools
-        run: npm run gulp buildLang
+        run: npm run nomi-ceu buildLang
         env:
           CFCORE_API_TOKEN: ${{ secrets.CFCORE_API_TOKEN }}
           MADE_CHANGELOG: true # Changelog Already Exists
